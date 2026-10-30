@@ -1,0 +1,15 @@
+---
+// Starlight has no slot for tags, so they go right under the title, where a reader sees them before the page.
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import { PageTags } from 'starlight-tags/components';
+---
+
+<Default />
+<PageTags />
+
+<style>
+	/* PageTags is its own component, so only a global rule reaches its nav. */
+	:global(.fb-page-tags) {
+		margin-top: 0.75rem;
+	}
+</style>

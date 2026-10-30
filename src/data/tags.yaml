@@ -1,0 +1,33 @@
+# Tags of the pages, read by the starlight-tags plugin. A page lists the IDs of its tags in the `tags` key of its
+# frontmatter. A tag names a part of Vigie or a topic that crosses the sidebar groups.
+tags:
+  sources:
+    label: Sources
+    description: Where Vigie reads the endpoints of a service, and how often.
+  dns:
+    label: DNS
+    description: The dns source, with its IP, SRV and TXT lookups.
+  consul:
+    label: Consul
+    description: Reading the services of Consul through its DNS interface.
+  kubernetes:
+    label: Kubernetes
+    description: Running Vigie in a cluster, and reading the ready endpoints of a Kubernetes Service.
+  http-api:
+    label: HTTP API
+    description: The endpoints Vigie serves, the JSON it answers with, and the page at the root.
+  flock:
+    label: Flock
+    description: Feeding the backends of Flock with the endpoints Vigie serves.
+  configuration:
+    label: Configuration file
+    description: The YAML file Vigie reads, its keys, defaults and errors.
+  cli:
+    label: Command line
+    description: The commands of the vigie binary.
+  operations:
+    label: Operations
+    description: Installing, reloading and troubleshooting a running server.
+  tls:
+    label: TLS
+    description: Serving HTTPS, and checking the certificates of remote lists.

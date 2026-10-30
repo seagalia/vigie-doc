@@ -1,0 +1,12 @@
+extends: existence
+message: "Cut the filler '%s' and say what the product does."
+level: warning
+ignorecase: true
+tokens:
+  - leverag(?:e|es|ed|ing)
+  - synerg(?:y|ies)
+  - seamless(?:ly)?
+  - value creation
+  - best-in-class
+  - we're excited to
+  - we are excited to

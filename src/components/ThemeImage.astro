@@ -1,0 +1,23 @@
+---
+// Starlight's sl-hidden helpers follow its theme picker, where a prefers-color-scheme rule would only follow the system.
+// The zoom plugin only wraps images it finds in Markdown and skips this component, so each image gets its Zoom by hand.
+// The hidden class sits on a wrapper so the zoom button of the hidden image goes away with it.
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import { Zoom } from 'starlight-image-zoom/components';
+
+interface Props {
+	light: ImageMetadata;
+	dark: ImageMetadata;
+	alt: string;
+}
+
+const { light, dark, alt } = Astro.props;
+---
+
+<div class="dark:sl-hidden">
+	<Zoom label={alt}><Image src={light} alt={alt} /></Zoom>
+</div>
+<div class="light:sl-hidden">
+	<Zoom label={alt}><Image src={dark} alt={alt} /></Zoom>
+</div>

@@ -1,0 +1,43 @@
+---
+title: Web page
+description: The page Vigie serves at the root, listing each service with its source, its default port and the endpoints it gives.
+sidebar:
+  order: 4
+tags: [http-api]
+---
+
+import ThemeImage from '../../../components/ThemeImage.astro';
+import pageLight from '../../../assets/page/page-light.png';
+import pageDark from '../../../assets/page/page-dark.png';
+
+The server serves a page at `/` for a person who wants to check what Vigie serves. It follows the light or dark theme of
+the browser.
+
+<ThemeImage light={pageLight} dark={pageDark} alt="The Vigie page listing three services. default and db read their endpoints from a file, localhost from DNS. Each row shows the source and the default port of the service next to its endpoints, some with a weight." />
+
+## Columns
+
+| Column | Shows |
+|---|---|
+| Service | The name of the service. It links to `/services?service_name=<name>`, the JSON answer. |
+| Source | The kind of source and where it reads, see [Source](#source). |
+| Default port | The `default_port` of the service. |
+| Endpoints | Each endpoint as `ip:port`, IPv6 addresses in brackets, with its weight when it's above `0`. |
+
+The page fetches the endpoints of every service from `/services` when it loads, the answer the clients read, cache
+included. Reload the page to see them again. A service whose source fails shows the error of `/services` in red, and one
+without any endpoint shows `no endpoint`.
+
+The services listed are the ones the server answers for. After a reload, the page lists the new services.
+
+## Source
+
+| Kind | Shown as |
+|---|---|
+| `dns ip`, `dns srv`, `dns txt` | The name looked up, the full SRV name for `SRV`, such as `_http._tcp.api.example.com`, followed by `@<resolver>` when the service sets one. |
+| `file` | The path of the file. |
+| `url` | The URL, without its user and password. The `basic_auth` credentials aren't shown either. |
+| `kubernetes` | `<namespace>/<service>`, followed by `:<port_name>` when the service sets one. The kubeconfig path isn't shown. |
+
+The page shows no secret of the configuration, but it does show the names, paths and addresses of your sources, and
+needs no authentication. Keep the port of Vigie on a network you trust, or in front of a proxy that restricts `/`.

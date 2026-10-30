@@ -1,0 +1,18 @@
+---
+// The coast has to span the whole area right of the sidebar, and Starlight's Footer sits in the narrow content column.
+import { Image } from 'astro:assets';
+import Default from '@astrojs/starlight/components/PageFrame.astro';
+import roquebruneDark from '../assets/brand/roquebrune-cap-martin-dark.svg';
+import roquebruneLight from '../assets/brand/roquebrune-cap-martin-light.svg';
+---
+
+<Default>
+	<slot name="header" slot="header" />
+	<slot name="sidebar" slot="sidebar" />
+	<slot />
+	<div class="site-footer print:hidden">
+		<Image src={roquebruneLight} alt="" class="coast coast-light" />
+		<Image src={roquebruneDark} alt="" class="coast coast-dark" />
+		<div class="band"><footer>© 2026 Seagalia</footer></div>
+	</div>
+</Default>

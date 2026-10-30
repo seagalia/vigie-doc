@@ -1,0 +1,14 @@
+# Outside projects the docs mention, mapped to their site. The first plain-text mention of a name on each page becomes a
+# link, whatever its case. See src/lib/external-links.mjs.
+consul: https://developer.hashicorp.com/consul
+distroless: https://github.com/GoogleContainerTools/distroless
+dnsmasq: https://thekelleys.org.uk/dnsmasq/doc.html
+docker: https://www.docker.com
+flock: https://flock.seagalia.dev
+ginkgo: https://onsi.github.io/ginkgo/
+golangci-lint: https://golangci-lint.run
+gomega: https://onsi.github.io/gomega/
+goreleaser: https://goreleaser.com
+kubernetes: https://kubernetes.io
+systemd: https://systemd.io
+zerolog: https://github.com/rs/zerolog

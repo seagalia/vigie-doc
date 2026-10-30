@@ -1,0 +1,11 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+level: warning
+ignorecase: true
+swap:
+  whitelist: allowlist
+  blacklist: denylist
+  master: main
+  click on: select
+  log in: sign in
+  etc: and so on

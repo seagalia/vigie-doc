@@ -1,0 +1,5 @@
+[Vv]igie
+[Ff]lock
+[Mm]eridian
+Consul
+EndpointSlices?

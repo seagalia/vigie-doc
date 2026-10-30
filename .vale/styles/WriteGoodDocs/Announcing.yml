@@ -1,0 +1,10 @@
+extends: existence
+message: "Don't announce the point with '%s'. Make it."
+level: warning
+ignorecase: true
+tokens:
+  - here's the key insight
+  - here is the key insight
+  - the important part is
+  - the honest answer
+  - the bottom line

@@ -1,0 +1,178 @@
+/* Vigie brand on Starlight. The turquoise, its shade and its dark shade are the vigie palette of seagalia-brand, the
+   ones vigie/ui/style.css uses; the low and high tones around them are derived for the backgrounds and the text. */
+
+:root {
+	--sl-font: 'Titillium Web', system-ui, sans-serif;
+
+	--sl-color-accent-low: #00363a;
+	--sl-color-accent: #34bbc1;
+	--sl-color-accent-high: #80dade;
+}
+
+:root[data-theme='light'] {
+	--sl-color-accent-low: #c9f0f1;
+	--sl-color-accent: #087e8b;
+	--sl-color-accent-high: #002f33;
+}
+
+/* The band takes the colour of the last wave of the Roquebrune-Cap-Martin art so the two join without a seam. */
+
+/* Lets the footer sit at the bottom of the window on short pages. */
+.main-frame {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+.site-footer {
+	margin-top: auto;
+	padding-top: 3rem;
+}
+
+.site-footer .coast {
+	display: block;
+	width: 100%;
+	height: auto;
+	/* The art ends on its band colour: overlap one pixel so no line shows between the two. */
+	margin-bottom: -1px;
+}
+
+/* Starlight's light:sl-hidden helpers sit in a cascade layer, which the display rule above would override. */
+.site-footer .coast-light,
+:root[data-theme='light'] .site-footer .coast-dark {
+	display: none;
+}
+
+:root[data-theme='light'] .site-footer .coast-light {
+	display: block;
+}
+
+.site-footer .band {
+	background: #043c72;
+	color: #eaf3fb;
+	font-size: 0.875rem;
+}
+
+.site-footer .band footer {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1rem clamp(0.5rem, 1.5vh, 1rem);
+}
+
+:root[data-theme='light'] .site-footer .band {
+	background: #043d74;
+}
+
+/* Diagrams are inline SVG in the pages, drawn with these classes so they follow the light and dark themes. */
+
+.diagram {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin-block: 1.5rem;
+	font-family: var(--sl-font);
+}
+
+.diagram .box {
+	fill: var(--sl-color-gray-6);
+	stroke: var(--sl-color-gray-4);
+	stroke-width: 1.5;
+}
+
+.diagram .box-accent {
+	fill: var(--sl-color-accent-low);
+	stroke: var(--sl-color-accent);
+	stroke-width: 1.5;
+}
+
+.diagram .box-planned {
+	fill: var(--sl-color-gray-6);
+	stroke: var(--sl-color-gray-3);
+	stroke-width: 1.5;
+	stroke-dasharray: 6 4;
+}
+
+.diagram .line-announce {
+	fill: none;
+	stroke: var(--sl-color-accent);
+	stroke-width: 1.5;
+	stroke-dasharray: 5 4;
+}
+
+.diagram .zone {
+	fill: none;
+	stroke: var(--sl-color-gray-4);
+	stroke-width: 1.5;
+	stroke-dasharray: 6 4;
+}
+
+.diagram .line {
+	fill: none;
+	stroke: var(--sl-color-gray-3);
+	stroke-width: 1.5;
+}
+
+.diagram .line-accent {
+	fill: none;
+	stroke: var(--sl-color-accent);
+	stroke-width: 2;
+}
+
+.diagram .arrowhead {
+	fill: var(--sl-color-gray-3);
+}
+
+.diagram .arrowhead-accent {
+	fill: var(--sl-color-accent);
+}
+
+.diagram .label {
+	fill: var(--sl-color-white);
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.diagram .note {
+	fill: var(--sl-color-gray-2);
+	font-size: 13px;
+}
+
+/* Starlight isolates the main pane without positioning it, so the fixed table of contents would paint over the tooltips
+   that overflow the content column. z-index 1 stays under the header (10) and the mobile menu (5). */
+.main-pane {
+	position: relative;
+	z-index: 1;
+}
+
+/* The tooltip is a child of the term, so the pointer can move into it to follow a link without it closing. */
+.glossary-term {
+	position: relative;
+	text-decoration: underline dotted var(--sl-color-gray-3);
+	text-underline-offset: 0.2em;
+	cursor: help;
+}
+
+.glossary-tooltip {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 10;
+	width: max-content;
+	max-width: min(22rem, 80vw);
+	padding: 0.5rem 0.75rem;
+	border: 1px solid var(--sl-color-gray-5);
+	border-radius: 0.375rem;
+	background-color: var(--sl-color-gray-6);
+	box-shadow: var(--sl-shadow-md);
+	color: var(--sl-color-gray-1);
+	font-size: var(--sl-text-sm);
+	font-weight: normal;
+	line-height: 1.5;
+	cursor: auto;
+}
+
+.glossary-term:hover .glossary-tooltip,
+.glossary-term:focus-within .glossary-tooltip {
+	display: block;
+}

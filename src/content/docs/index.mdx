@@ -1,0 +1,84 @@
+---
+title: Vigie
+description: Vigie is an endpoint discovery server. It reads the endpoints of named services from DNS, a file, a URL or Kubernetes, and serves them as JSON over HTTP.
+template: splash
+hero:
+  title: Endpoint discovery server
+  tagline: One HTTP answer for the endpoints of your services, wherever they're listed.
+  image:
+    alt: The Vigie symbol, a gull on a lookout post watching through a telescope.
+    light: ../../assets/brand/symbol.svg
+    dark: ../../assets/brand/symbol-dark.svg
+  actions:
+    - text: Try it locally
+      link: /start/quickstart/
+      icon: right-arrow
+    - text: Install Vigie
+      link: /start/install/
+      variant: secondary
+    - text: View on GitHub
+      link: https://github.com/seagalia/vigie
+      icon: github
+      variant: minimal
+---
+
+import { Card, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import ThemeImage from '../../components/ThemeImage.astro';
+import pageLight from '../../assets/page/page-light.png';
+import pageDark from '../../assets/page/page-dark.png';
+
+## The problem
+
+A load balancer or a proxy needs the list of endpoints behind each service, and that list lives in many places, such as
+DNS,
+Consul, the pods behind a Kubernetes Service, a text file kept by hand, or an inventory served over HTTP. Teaching each
+client every one of those sources means as many integrations to write and
+to keep working.
+
+## What Vigie does
+
+Vigie reads the endpoints of each service from one source and serves them all the same way. A client asks for a service
+by name with `GET /services?service_name=<name>` and gets a JSON list of endpoints, each an IP address and a port with
+its
+weight, whatever the source behind it.
+
+<CardGrid>
+	<Card title="Four sources" icon="list-format">
+		DNS records (A and AAAA, SRV, or TXT), a local file, a list served over HTTP, or the ready endpoints of a Kubernetes
+		Service. Consul is read through its DNS interface.
+	</Card>
+	<Card title="One small answer" icon="document">
+		Every service answers with the same JSON list of `ip`, `port` and `load_balancing_weight`, which any HTTP client can
+		poll.
+	</Card>
+	<Card title="Cheap to poll" icon="rocket">
+		Vigie caches each answer for a few seconds and reads a source once for all the clients asking at the same time, so
+		many pollers cost one lookup.
+	</Card>
+	<Card title="Reload without a restart" icon="random">
+		`SIGHUP` or `POST /reload` reads the file again. An invalid file is refused, and the previous services stay in
+		service.
+	</Card>
+</CardGrid>
+
+## See every service at a glance
+
+The page at the root of the server lists the services with their source and the endpoints each one gives when the page
+loads, with their weight.
+
+<ThemeImage light={pageLight} dark={pageDark} alt="The Vigie page listing three services. default and db read their endpoints from a file, localhost from DNS. Each row shows the source and the default port of the service next to its endpoints, some with a weight." />
+
+## Who uses it
+
+The agents of [Flock](https://github.com/seagalia/flock) poll Vigie for the endpoints of their backends with an `eds`
+block, and meridian reads the same answer. Any other client that can send an HTTP request and parse JSON can do the
+same.
+
+## Next steps
+
+<CardGrid>
+	<LinkCard title="Quickstart" href="/start/quickstart/" description="Run Vigie on your machine and query a first service." />
+	<LinkCard title="How Vigie works" href="/concepts/how-vigie-works/" description="Sources, cache, reload, and the answer clients rely on." />
+	<LinkCard title="Configuration" href="/reference/configuration/" description="Every key of the YAML file, with its default and its errors." />
+	<LinkCard title="Feed Flock backends" href="/guides/feed-flock-backends/" description="Point the eds block of a Flock backend at Vigie." />
+</CardGrid>
