@@ -7,14 +7,17 @@ import { h } from '@astrojs/starlight/expressive-code/hast';
 import { toHast } from 'mdast-util-to-hast';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
+import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { parse } from 'yaml';
 
-const markdown = unified().use(remarkParse).use(remarkGfm);
+// Astro turns quotes and apostrophes into typographic ones before the plugins of the site run, so the text of the data
+// file gets the same treatment here.
+const markdown = unified().use(remarkParse).use(remarkGfm).use(remarkSmartypants);
 
 // The phrasing nodes of a one-line Markdown text, ready to go in a table cell or a paragraph.
 function parsePhrasing(text) {
-	const paragraph = markdown.parse(text).children[0];
+	const paragraph = markdown.runSync(markdown.parse(text)).children[0];
 	return paragraph?.children ?? [];
 }
 
