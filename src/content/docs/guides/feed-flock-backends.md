@@ -73,8 +73,24 @@ eds:
 `ca` holds the PEM of the CA that signed the certificate of Vigie. Without it, the agents check the certificate against
 the CAs of their system.
 
-Vigie has no authentication of its own. To require one, put Vigie behind a proxy that checks it, then give the
-credentials in `url.user_info` for basic authentication, or in `headers`.
+When Vigie [requires a password](/guides/require-a-password/), give the username and password of one of its users in
+`url.user_info` of the backend:
+
+```yaml title="backend.yml" ins={7-9}
+eds:
+  url:
+    scheme: https
+    host: vigie.example.com
+    port: 8443
+    path: /services
+    user_info:
+      user: flock
+      password: change-me
+  service_name: web
+```
+
+The agents send them as basic authentication on each poll. Serve Vigie over HTTPS in that case, because basic
+authentication sends the password in clear.
 
 ## Check the result
 

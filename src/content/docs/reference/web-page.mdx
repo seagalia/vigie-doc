@@ -40,4 +40,6 @@ The services listed are the ones the server answers for. After a reload, the pag
 | `kubernetes` | `<namespace>/<service>`, followed by `:<port_name>` when the service sets one. The kubeconfig path isn't shown. |
 
 The page shows no secret of the configuration, but it does show the names, paths and addresses of your sources, and
-needs no authentication. Keep the port of Vigie on a network you trust, or in front of a proxy that restricts `/`.
+needs no authentication unless `server.basic_auth` is set. Keep the port of Vigie on a network you trust, or [require a
+password](/guides/require-a-password/). With `server.basic_auth`, the browser asks for a username and password before
+showing the page.

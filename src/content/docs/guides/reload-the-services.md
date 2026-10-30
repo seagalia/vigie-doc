@@ -57,8 +57,8 @@ curl -s -X POST http://localhost:8080/reload
 Vigie answers `200` with `services reloaded`, or `422` with `services not reloaded:` and the error, and then keeps the
 previous services.
 
-`POST /reload` has no authentication, so anyone who reaches the port can make Vigie read the file again. Turn it off
-when other hosts can reach the server, and reload with the signal:
+Without `server.basic_auth`, anyone who reaches the port can make Vigie read the file again. When other hosts can reach
+the server, [require a password](/guides/require-a-password/), or turn the endpoint off and reload with the signal:
 
 ```yaml title="config.yml"
 disable_reload_by_request: true

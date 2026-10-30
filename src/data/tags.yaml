@@ -28,6 +28,9 @@ tags:
   operations:
     label: Operations
     description: Installing, reloading and troubleshooting a running server.
+  security:
+    label: Security
+    description: Restricting who can read and reload the services.
   tls:
     label: TLS
     description: Serving HTTPS, and checking the certificates of remote lists.

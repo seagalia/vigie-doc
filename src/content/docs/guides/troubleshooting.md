@@ -2,7 +2,7 @@
 title: Troubleshooting
 description: What the errors of Vigie mean, at start, on a reload and in the answer of /services, and how to fix them.
 sidebar:
-  order: 8
+  order: 9
 tags: [operations]
 ---
 
@@ -41,6 +41,7 @@ a change to `disable_reload_by_request`.
 
 | Status and body | Cause | Fix |
 |---|---|---|
+| `401 unauthorized` | `server.basic_auth` is set and the request has no username and password, or wrong ones. | Give the username and password of one of its users, such as `url.user_info` of a Flock backend. |
 | `404 service <name> not found` | No service has this name. Without `service_name`, no service is named `default`. | Check the name, or reload the file that adds the service. |
 | `500 resolve service <name> failed: cannot resolve on lookup ...` | The DNS lookup failed or found no record. | Compare with `dig`, see [Read endpoints from DNS](/guides/read-endpoints-from-dns/#check-the-result). |
 | `500 resolve service <name> failed: open <path>: ...` | The file of a `file` source is missing or unreadable by the user of Vigie. | Fix the path or its permissions. |

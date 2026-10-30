@@ -9,8 +9,8 @@ tags: [tls, configuration]
 By default, Vigie speaks plain HTTP. With `server.tls`, it speaks HTTPS only, on the same `listen_addr`. Use it when
 clients reach Vigie over a network you don't trust, so they can check that the endpoints come from your server.
 
-Vigie doesn't check the certificates of its clients. To restrict who can read it, filter the port with a firewall or put
-a proxy in front.
+Vigie doesn't check the certificates of its clients. To restrict who can read it, [require a
+password](/guides/require-a-password/) or filter the port with a firewall.
 
 ## Before you start
 

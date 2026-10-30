@@ -25,6 +25,9 @@ server:
   tls:
     cert_file: /etc/vigie/vigie.crt
     key_file: /etc/vigie/vigie.key
+  basic_auth:
+    - username: flock
+      password: change-me
 log:
   level: info
   no_color: false
@@ -44,6 +47,7 @@ services:
 | `server.listen_addr` | string | no | `:8080` | Address the server listens on. |
 | `server.tls.cert_file` | path | with `server.tls` | none | Certificate of the server, in PEM. |
 | `server.tls.key_file` | path | with `server.tls` | none | Private key of the certificate, in PEM. |
+| `server.basic_auth` | list | no | empty | Users allowed to call the server, each with a `username` and a `password`. When set, every endpoint but `GET /healthz` asks for one of them. |
 | `log.level` | string | no | `info` | `trace`, `debug`, `info`, `warn` (or `warning`), `error`, `fatal` or `panic`. |
 | `log.no_color` | boolean | no | `false` | Prints text without ANSI colours. |
 | `log.in_json` | boolean | no | `false` | Prints one JSON object per line instead of text. |
@@ -53,10 +57,14 @@ services:
 
 Without `server.tls`, the server speaks plain HTTP. With it, the server speaks HTTPS only.
 
+With `server.basic_auth`, a request without the username and password of one of the users gets `401`, see [Require a password](/guides/require-a-password/). Basic authentication sends the password in clear on each request, so set `server.tls` too when the network isn't trusted.
+
 | Error | Cause |
 |---|---|
 | `services is empty` | `services` is empty or missing. |
 | `server tls: cert_file and key_file are required` | `server.tls` is set with an empty `cert_file` or `key_file`. |
+| `server basic_auth: username and password are required` | A user of `server.basic_auth` has an empty `username` or `password`. |
+| `server basic_auth: username <name> is given twice` | Two users of `server.basic_auth` have the same `username`. |
 | `cache ttl is negative` | `cache.ttl` is below `0s`. |
 
 ## `services[]`

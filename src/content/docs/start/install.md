@@ -138,7 +138,7 @@ data:
       listen_addr: :8080
     log:
       in_json: true
-    # POST /reload has no authentication, and a restart of the pods applies a new ConfigMap
+    # nothing sends SIGHUP to the pods, a restart applies a new ConfigMap
     disable_reload_by_request: true
     services:
       - name: web

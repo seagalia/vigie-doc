@@ -7,7 +7,8 @@ tags: [http-api]
 ---
 
 The Vigie server speaks HTTP/1.1 on `server.listen_addr` (`:8080` by default), or HTTPS only when `server.tls` is set.
-None of its endpoints asks for authentication.
+Without `server.basic_auth` none of its endpoints asks for authentication. With it, every endpoint but `GET /healthz`
+asks for the username and password of one of its users, see [Authentication](#authentication).
 
 | Method and path | Answer |
 |---|---|
@@ -57,6 +58,7 @@ The answer can be up to `cache_ttl` old, 5 seconds by default, see [The cache](/
 
 | Status | Body | Cause |
 |---|---|---|
+| `401` | `unauthorized` | `server.basic_auth` is set and the request has none of its users. |
 | `404` | `service <name> not found` | No service has this name, or the request has no `service_name` and no service is named `default`. |
 | `500` | `resolve service <name> failed: <err>` | The source failed, such as a DNS lookup that found nothing or a remote list that answered with an error. `<err>` tells which. |
 
@@ -65,8 +67,8 @@ versions.
 
 ## `GET /healthz`
 
-Answers `200` with the body `ok` while the server runs. It doesn't read any source, so it only tells that the process is
-up. Use it for liveness and readiness probes.
+Answers `200` with the body `ok` while the server runs, without asking for `server.basic_auth`. It doesn't read any
+source, so it only tells that the process is up. Use it for liveness and readiness probes.
 
 ## `POST /reload`
 
@@ -78,6 +80,19 @@ Reads the configuration file again and replaces all the services, with the same 
 | `422` | `services not reloaded: <err>` | The file is invalid, or one of its sources can't be built, such as a `kubernetes` source whose kubeconfig can't be loaded. Vigie keeps serving the previous services. |
 | `404` | `404 page not found` | The file sets `disable_reload_by_request: true`. |
 
-`POST /reload` has no authentication, so anyone who reaches the server can make it read the file again. Set
-`disable_reload_by_request: true` when other hosts can reach the server, and reload with `SIGHUP`. [Reload the
+Without `server.basic_auth`, anyone who reaches the server can make it read the file again. Set `server.basic_auth`, or
+set `disable_reload_by_request: true` and reload with `SIGHUP`, when other hosts can reach the server. [Reload the
 services](/guides/reload-the-services/) gives both ways.
+
+## Authentication
+
+With `server.basic_auth`, the server asks for HTTP basic authentication on every endpoint but `GET /healthz`. A request
+must carry the username and password of one of the users in an `Authorization: Basic` header. Otherwise the server
+answers `401` with the body `unauthorized` and the header `WWW-Authenticate: Basic realm="vigie", charset="UTF-8"`, so a
+browser asks for them before showing the page.
+
+```bash
+curl -s -u flock:change-me 'https://vigie.example.com:8443/services?service_name=web'
+```
+
+[Require a password](/guides/require-a-password/) sets it up.
