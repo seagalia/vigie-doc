@@ -47,6 +47,7 @@ export default defineConfig({
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/seagalia/vigie' }],
 			customCss: ['./src/styles/fonts.css', './src/styles/custom.css'],
 			components: {
+				Header: './src/components/Header.astro',
 				PageFrame: './src/components/PageFrame.astro',
 				PageTitle: './src/components/PageTitle.astro',
 				SocialIcons: './src/components/SocialIcons.astro',

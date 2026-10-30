@@ -1,0 +1,37 @@
+---
+// The links to the docs and the download page, at the top of every page. The header shows them through SocialIcons on
+// wide screens and through Header on narrow ones, where Starlight hides the group SocialIcons sits in.
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+const path = Astro.url.pathname;
+const isHome = path === '/';
+const isDownload = path.startsWith('/download/');
+const isDocs = !isHome && !isDownload;
+---
+
+<nav class:list={['top-links', 'sl-flex', className]} aria-label="Main">
+	<a href="/start/quickstart/" aria-current={isDocs ? 'page' : undefined}>Docs</a>
+	<a href="/download/" aria-current={isDownload ? 'page' : undefined}>Download</a>
+</nav>
+
+<style>
+	.top-links {
+		gap: 1.25rem;
+		align-items: center;
+	}
+
+	.top-links a {
+		color: var(--sl-color-gray-2);
+		font-weight: 600;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.top-links a:hover,
+	.top-links a[aria-current='page'] {
+		color: var(--sl-color-text-accent);
+	}
+</style>

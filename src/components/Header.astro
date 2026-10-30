@@ -1,0 +1,38 @@
+---
+// Starlight hides the right group of its header on narrow screens, the links to the docs and the download page with it,
+// and the pages without a sidebar have no menu to reach them either. So narrow screens get the links next to the header.
+import Default from '@astrojs/starlight/components/Header.astro';
+import TopLinks from './TopLinks.astro';
+---
+
+<div class="header-with-links">
+	<div class="default-header">
+		<Default />
+	</div>
+	<TopLinks class="narrow-screen-links" />
+</div>
+
+<style>
+	.header-with-links {
+		display: flex;
+		align-items: center;
+		gap: var(--sl-nav-gap);
+		height: 100%;
+	}
+
+	.default-header {
+		flex: 1;
+		min-width: 0;
+		height: 100%;
+	}
+
+	.narrow-screen-links {
+		gap: 1rem;
+	}
+
+	@media (min-width: 50rem) {
+		.narrow-screen-links {
+			display: none;
+		}
+	}
+</style>
