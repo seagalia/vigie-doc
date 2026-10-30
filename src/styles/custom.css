@@ -213,6 +213,11 @@
 	margin: 0;
 }
 
+/* Inside a code block, a link would otherwise keep the colour the browser gives it. */
+.config-key-tooltip a {
+	color: var(--sl-color-text-accent);
+}
+
 .config-key-tooltip p + p {
 	margin-top: 0.25rem;
 }
