@@ -1,0 +1,170 @@
+---
+// The data comes from scripts/gen-proto-reference.sh. Starlight only reads Markdown from the content collection, so this
+// page lays out the generated reference itself and renders each proto comment as Markdown.
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { createMarkdownProcessor } from '@astrojs/markdown-remark';
+import reference from '../../generated/proto-reference.json';
+import { protoAnchors, protoHref, remarkProtoLinks, shortName } from '../../lib/proto-links.mjs';
+
+// Proto comments hold no HTML, so text such as "Err[<date>]" has to stay text instead of becoming an unknown tag.
+function remarkHtmlAsText() {
+	return (tree) => {
+		const visit = (node) => {
+			if (node.type === 'html') node.type = 'text';
+			node.children?.forEach(visit);
+		};
+		visit(tree);
+	};
+}
+
+const markdown = await createMarkdownProcessor({
+	syntaxHighlight: false,
+	remarkPlugins: [remarkHtmlAsText, [remarkProtoLinks, { reference }]],
+});
+// Fields, enum values and methods are described in a table cell, where proto names show without their package.
+const cellMarkdown = await createMarkdownProcessor({
+	syntaxHighlight: false,
+	remarkPlugins: [remarkHtmlAsText, [remarkProtoLinks, { reference, inTable: true }]],
+});
+
+const descriptions = [];
+const cellDescriptions = [];
+const addDescription = (list, item) => {
+	if (item.description) list.push(item.description);
+};
+for (const file of reference.files) {
+	addDescription(descriptions, file);
+	for (const message of file.messages) {
+		addDescription(descriptions, message);
+		for (const field of message.fields) addDescription(cellDescriptions, field);
+	}
+	for (const protoEnum of file.enums) {
+		addDescription(descriptions, protoEnum);
+		for (const value of protoEnum.values) addDescription(cellDescriptions, value);
+	}
+	for (const service of file.services) {
+		addDescription(descriptions, service);
+		for (const method of service.methods) addDescription(cellDescriptions, method);
+	}
+}
+const rendered = new Map();
+const renderedCells = new Map();
+await Promise.all([
+	...descriptions.map(async (text) => rendered.set(text, (await markdown.render(text)).code)),
+	...cellDescriptions.map(async (text) => renderedCells.set(text, (await cellMarkdown.render(text)).code)),
+]);
+const html = (item) => rendered.get(item.description) ?? '';
+const cellHtml = (item) => renderedCells.get(item.description) ?? '';
+
+const anchors = protoAnchors(reference);
+const typeHref = (fullType) => (anchors.has(fullType) ? protoHref(anchors.get(fullType)) : undefined);
+
+const headings = reference.files.flatMap((file) => [
+	{ depth: 2, slug: file.name, text: file.name },
+	...[...file.messages, ...file.enums, ...file.services].map((item) => ({ depth: 3, slug: item.fullName, text: item.longName })),
+]);
+---
+
+<StarlightPage
+	frontmatter={{
+		title: 'Protobuf reference',
+		description: 'Every message, field, enum and service of the .proto files of Vigie, generated from the sources.',
+	}}
+	headings={headings}
+>
+	<p>
+		This page is generated from the <code>.proto</code> files under
+		<a href="https://github.com/seagalia/vigie/tree/main/api/vigie"><code>api/vigie</code></a> in the Vigie repository.
+		To learn how to call the service, read <a href="/reference/http-api/#the-eds-service">HTTP API</a>. Any page of this
+		site links a full proto name such as <code>vigie.eds.v1.Endpoint</code> to its entry here.
+	</p>
+
+	{
+		reference.files.map((file) => (
+			<section class="proto-reference">
+				<h2 id={file.name}>{file.name}</h2>
+				<Fragment set:html={html(file)} />
+
+				{file.messages.map((message) => (
+					<>
+						<h3 id={message.fullName}>{message.longName}</h3>
+						<Fragment set:html={html(message)} />
+						{message.fields.length > 0 && (
+							<table>
+								<thead>
+									<tr><th>Field</th><th>Type</th><th>Label</th><th>Description</th></tr>
+								</thead>
+								<tbody>
+									{message.fields.map((field) => (
+										<tr id={`${message.fullName}.${field.name}`}>
+											<td><code>{field.name}</code></td>
+											<td>{typeHref(field.fullType) ? <a href={typeHref(field.fullType)} title={field.fullType}>{shortName(field.fullType)}</a> : <code title={field.fullType}>{shortName(field.fullType)}</code>}</td>
+											<td>{field.isoneof ? `oneof ${field.oneofdecl}` : field.label}</td>
+											<td set:html={cellHtml(field)} />
+										</tr>
+									))}
+								</tbody>
+							</table>
+						)}
+					</>
+				))}
+
+				{file.enums.map((protoEnum) => (
+					<>
+						<h3 id={protoEnum.fullName}>{protoEnum.longName}</h3>
+						<Fragment set:html={html(protoEnum)} />
+						<table>
+							<thead>
+								<tr><th>Name</th><th>Number</th><th>Description</th></tr>
+							</thead>
+							<tbody>
+								{protoEnum.values.map((value) => (
+									<tr id={`${protoEnum.fullName}.${value.name}`}>
+										<td><code>{value.name}</code></td>
+										<td>{value.number}</td>
+										<td set:html={cellHtml(value)} />
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</>
+				))}
+
+				{file.services.map((service) => (
+					<>
+						<h3 id={service.fullName}>{service.longName}</h3>
+						<Fragment set:html={html(service)} />
+						<table>
+							<thead>
+								<tr><th>Method</th><th>Request</th><th>Response</th><th>Description</th></tr>
+							</thead>
+							<tbody>
+								{service.methods.map((method) => (
+									<tr id={`${service.fullName}.${method.name}`}>
+										<td><code>{method.name}</code></td>
+										<td>
+											{method.requestStreaming && 'stream '}
+											{typeHref(method.requestFullType) ? <a href={typeHref(method.requestFullType)} title={method.requestFullType}>{shortName(method.requestFullType)}</a> : <code title={method.requestFullType}>{shortName(method.requestFullType)}</code>}
+										</td>
+										<td>
+											{method.responseStreaming && 'stream '}
+											{typeHref(method.responseFullType) ? <a href={typeHref(method.responseFullType)} title={method.responseFullType}>{shortName(method.responseFullType)}</a> : <code title={method.responseFullType}>{shortName(method.responseFullType)}</code>}
+										</td>
+										<td set:html={cellHtml(method)} />
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</>
+				))}
+			</section>
+		))
+	}
+</StarlightPage>
+
+<style>
+	/* Rendered descriptions open with a paragraph, whose top margin would push the text below the other cells. */
+	.proto-reference :global(td > :first-child) {
+		margin-top: 0;
+	}
+</style>

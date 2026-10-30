@@ -1,0 +1,36 @@
+---
+// Shown under a heading, it names the proto messages the section describes and links each to the protobuf reference.
+import reference from '../generated/proto-reference.json';
+import { protoAnchors, protoHref } from '../lib/proto-links.mjs';
+
+interface Props {
+	names: string[];
+}
+
+const { names } = Astro.props;
+
+const anchors = protoAnchors(reference);
+const unknown = names.filter((name) => !anchors.has(name));
+if (unknown.length > 0) throw new Error(`unknown proto name in ProtoMessage: ${unknown.join(', ')}`);
+---
+
+<p class="proto-message">
+	{
+		names.map((name, index) => (
+			<>
+				{index > 0 && ', '}
+				<a href={protoHref(anchors.get(name))}>
+					<code>{name}</code>
+				</a>
+			</>
+		))
+	}
+</p>
+
+<style>
+	.proto-message {
+		margin-top: 0.25rem;
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-3);
+	}
+</style>

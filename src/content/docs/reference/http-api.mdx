@@ -6,6 +6,8 @@ sidebar:
 tags: [http-api]
 ---
 
+import ProtoMessage from '../../../components/ProtoMessage.astro';
+
 The Vigie server speaks HTTP/1.1 and HTTP/2 on `server.listen_addr` (`:8080` by default), over TLS only when
 `server.tls` is set. Without TLS it also accepts HTTP/2 in clear text (h2c), which gRPC clients use. Without
 `server.basic_auth` none of its endpoints asks for authentication. With it, every endpoint but the health checks asks
@@ -71,6 +73,8 @@ versions.
 
 ## The EDS service
 
+<ProtoMessage names={["vigie.eds.v1.EndpointDiscoveryService"]} />
+
 `vigie.eds.v1.EndpointDiscoveryService` gives the same endpoints as `GET /services`, as protobuf messages, on the same
 port and behind the same `server.basic_auth`. Its one method, `GetEndpoints`, takes the name of a service:
 
@@ -115,8 +119,9 @@ flock:change-me | base64)"`.
 | `Unimplemented` | `HTTP status 404 Not Found` | The procedure isn't at that path, such as a client whose base URL ends with `/services`. |
 
 The service is defined in
-[`api/vigie/eds/v1/eds.proto`](https://github.com/seagalia/vigie/blob/main/api/vigie/eds/v1/eds.proto), and the Go
-module `github.com/seagalia/vigie` gives a client in `sdk/clients`:
+[`api/vigie/eds/v1/eds.proto`](https://github.com/seagalia/vigie/blob/main/api/vigie/eds/v1/eds.proto), described
+field by field in the [Protobuf reference](/reference/proto/), and the Go module `github.com/seagalia/vigie` gives a
+client in `sdk/clients`:
 
 ```go
 client, err := clients.NewEndpointDiscovery("http://vigie.example.com:8080", clients.Options{})
