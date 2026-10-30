@@ -42,18 +42,7 @@ services:
       path: /etc/vigie/endpoints.txt
 ```
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `server.listen_addr` | string | no | `:8080` | Address the server listens on. |
-| `server.tls.cert_file` | path | with `server.tls` | none | Certificate of the server, in PEM. |
-| `server.tls.key_file` | path | with `server.tls` | none | Private key of the certificate, in PEM. |
-| `server.basic_auth` | list | no | empty | Users allowed to call the server, each with a `username` and a `password`. When set, every endpoint but `GET /healthz` asks for one of them. |
-| `log.level` | string | no | `info` | `trace`, `debug`, `info`, `warn` (or `warning`), `error`, `fatal` or `panic`. |
-| `log.no_color` | boolean | no | `false` | Prints text without ANSI colours. |
-| `log.in_json` | boolean | no | `false` | Prints one JSON object per line instead of text. |
-| `disable_reload_by_request` | boolean | no | `false` | Removes the `POST /reload` endpoint. |
-| `cache.ttl` | duration | no | `5s` | How long vigie reuses the answer of a source, for the services without their own `cache_ttl`. `0s` reads the source on every request. |
-| `services` | list | yes | none | Services the server answers for, at least one. |
+::configuration-keys{prefix=""}
 
 Without `server.tls`, the server speaks plain HTTP. With it, the server speaks HTTPS only.
 
@@ -69,15 +58,7 @@ With `server.basic_auth`, a request without the username and password of one of 
 
 ## `services[]`
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `name` | string | yes | none | Name clients ask for. A request without a name gets the service named `default`. |
-| `default_port` | integer | no | `80` | Port of the endpoints that don't give their own. |
-| `cache_ttl` | duration | no | `cache.ttl` | How long vigie reuses the answer of this service's source. `0s` reads the source on every request. |
-| `dns` | object | one source | none | Reads the endpoints from DNS. |
-| `file` | object | one source | none | Reads the endpoints from a local file. |
-| `url` | object | one source | none | Reads the endpoints from an HTTP endpoint. |
-| `kubernetes` | object | one source | none | Reads the endpoints from a Kubernetes Service. |
+::configuration-keys{prefix="services[]."}
 
 Give each service one source. When a service has several, the first of `kubernetes`, `url`, `file` and `dns` wins, and
 vigie ignores the others.
@@ -109,13 +90,7 @@ services:
       srv_proto: tcp
 ```
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `name` | string | yes | none | DNS name to look up. |
-| `type` | string | no | `IP` | `IP`, `SRV` or `TXT`, in any case. |
-| `srv_service` | string | no | `http` with `SRV` | Service part of the SRV lookup. |
-| `srv_proto` | string | no | `tcp` with `SRV` | Protocol part of the SRV lookup. |
-| `resolver` | `host:port` | no | empty | DNS server to query instead of the resolver of the system, such as `127.0.0.1:8600`. An IPv6 address goes in brackets, `[::1]:8600`. |
+::configuration-keys{prefix="services[].dns."}
 
 vigie builds the SRV name from the three keys, so `name: api.example.com` with `srv_service: http` and `srv_proto: tcp`
 looks up `_http._tcp.api.example.com`.
@@ -178,9 +153,7 @@ services:
       path: /etc/vigie/web-endpoints.txt
 ```
 
-| Key | Type | Description |
-|---|---|---|
-| `path` | path | File holding one [endpoint line](#endpoint-lines) per line. |
+::configuration-keys{prefix="services[].file."}
 
 ### `url`
 
@@ -196,12 +169,7 @@ services:
       insecure_skip_verify: false
 ```
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `url` | URL | yes | none | Endpoint answering a `GET` with one [endpoint line](#endpoint-lines) per line. |
-| `basic_auth.username` | string | no | empty | User name for HTTP basic authentication. Sent only with `password`. |
-| `basic_auth.password` | string | no | empty | Password for HTTP basic authentication. Sent only with `username`. |
-| `insecure_skip_verify` | boolean | no | `false` | Skips the TLS check of the remote server. |
+::configuration-keys{prefix="services[].url."}
 
 The request times out after 8 seconds. An answer other than `200` fails the request with `bad status code: <code>,
 <body>`.
@@ -225,13 +193,7 @@ services:
       context: prod
 ```
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `service` | string | yes | none | Name of the Kubernetes Service. |
-| `namespace` | string | no | `default` | Namespace of the Service. |
-| `port_name` | string | no | empty | Name of the port to use, among the ports of the Service. |
-| `kubeconfig` | path | no | empty | Kubeconfig to connect with. A leading `~/` is the home directory. |
-| `context` | string | no | empty | Context of the kubeconfig. Empty means its current context. |
+::configuration-keys{prefix="services[].kubernetes."}
 
 Without `kubeconfig`, vigie looks for `$KUBECONFIG`, then `~/.kube/config`, then the service account of the pod it runs
 in.

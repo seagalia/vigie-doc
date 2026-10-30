@@ -1,0 +1,222 @@
+# Every key of the vigie configuration file, by its full path. The configuration reference page shows one table per
+# group, each key written without the prefix of its group, and the YAML code blocks of the site show the entry of a key
+# when it's hovered or focused. Every field but `path` is Markdown.
+- prefix: ''
+  keys:
+    - path: server
+      type: object
+      required: 'no'
+      default: none
+      description: Settings of the HTTP server. A change needs a restart, a reload doesn't apply it.
+    - path: server.listen_addr
+      type: string
+      required: 'no'
+      default: '`:8080`'
+      description: Address the server listens on.
+    - path: server.tls
+      type: object
+      required: 'no'
+      default: none
+      description: Turns HTTPS on, with the certificate and its key. Without it, the server speaks plain HTTP.
+    - path: server.tls.cert_file
+      type: path
+      required: with `server.tls`
+      default: none
+      description: Certificate of the server, in PEM.
+    - path: server.tls.key_file
+      type: path
+      required: with `server.tls`
+      default: none
+      description: Private key of the certificate, in PEM.
+    - path: server.basic_auth
+      type: list
+      required: 'no'
+      default: empty
+      description: >-
+        Users allowed to call the server. When set, every endpoint but `GET /healthz` asks for the username and password
+        of one of them.
+    - path: server.basic_auth[].username
+      type: string
+      required: with `server.basic_auth`
+      default: none
+      description: Username of the user, unique among the users.
+    - path: server.basic_auth[].password
+      type: string
+      required: with `server.basic_auth`
+      default: none
+      description: Password of the user.
+    - path: log
+      type: object
+      required: 'no'
+      default: none
+      description: Settings of the logs, printed on the standard error.
+    - path: log.level
+      type: string
+      required: 'no'
+      default: '`info`'
+      description: '`trace`, `debug`, `info`, `warn` (or `warning`), `error`, `fatal` or `panic`.'
+    - path: log.no_color
+      type: boolean
+      required: 'no'
+      default: '`false`'
+      description: Prints text without ANSI colours.
+    - path: log.in_json
+      type: boolean
+      required: 'no'
+      default: '`false`'
+      description: Prints one JSON object per line instead of text.
+    - path: disable_reload_by_request
+      type: boolean
+      required: 'no'
+      default: '`false`'
+      description: Removes the `POST /reload` endpoint.
+    - path: cache
+      type: object
+      required: 'no'
+      default: none
+      description: Settings of the cache kept in front of each source.
+    - path: cache.ttl
+      type: duration
+      required: 'no'
+      default: '`5s`'
+      description: >-
+        How long vigie reuses the answer of a source, for the services without their own `cache_ttl`. `0s` reads the
+        source on every request.
+    - path: services
+      type: list
+      required: 'yes'
+      default: none
+      description: Services the server answers for, at least one.
+
+- prefix: services[].
+  keys:
+    - path: services[].name
+      type: string
+      required: 'yes'
+      default: none
+      description: Name clients ask for. A request without a name gets the service named `default`.
+    - path: services[].default_port
+      type: integer
+      required: 'no'
+      default: '`80`'
+      description: Port of the endpoints that don't give their own.
+    - path: services[].cache_ttl
+      type: duration
+      required: 'no'
+      default: '`cache.ttl`'
+      description: How long vigie reuses the answer of this service's source. `0s` reads the source on every request.
+    - path: services[].dns
+      type: object
+      required: one source
+      default: none
+      description: Reads the endpoints from DNS.
+    - path: services[].file
+      type: object
+      required: one source
+      default: none
+      description: Reads the endpoints from a local file.
+    - path: services[].url
+      type: object
+      required: one source
+      default: none
+      description: Reads the endpoints from an HTTP endpoint.
+    - path: services[].kubernetes
+      type: object
+      required: one source
+      default: none
+      description: Reads the endpoints from a Kubernetes Service.
+
+- prefix: services[].dns.
+  keys:
+    - path: services[].dns.name
+      type: string
+      required: 'yes'
+      default: none
+      description: DNS name to look up.
+    - path: services[].dns.type
+      type: string
+      required: 'no'
+      default: '`IP`'
+      description: '`IP`, `SRV` or `TXT`, in any case.'
+    - path: services[].dns.srv_service
+      type: string
+      required: 'no'
+      default: '`http` with `SRV`'
+      description: Service part of the SRV lookup.
+    - path: services[].dns.srv_proto
+      type: string
+      required: 'no'
+      default: '`tcp` with `SRV`'
+      description: Protocol part of the SRV lookup.
+    - path: services[].dns.resolver
+      type: '`host:port`'
+      required: 'no'
+      default: empty
+      description: >-
+        DNS server to query instead of the resolver of the system, such as `127.0.0.1:8600`. An IPv6 address goes in
+        brackets, `[::1]:8600`.
+
+- prefix: services[].file.
+  keys:
+    - path: services[].file.path
+      type: path
+      required: 'yes'
+      default: none
+      description: File holding one [endpoint line](/reference/configuration/#endpoint-lines) per line.
+
+- prefix: services[].url.
+  keys:
+    - path: services[].url.url
+      type: URL
+      required: 'yes'
+      default: none
+      description: >-
+        Endpoint answering a `GET` with one [endpoint line](/reference/configuration/#endpoint-lines) per line.
+    - path: services[].url.basic_auth
+      type: object
+      required: 'no'
+      default: none
+      description: Credentials sent to the remote server with HTTP basic authentication.
+    - path: services[].url.basic_auth.username
+      type: string
+      required: 'no'
+      default: empty
+      description: User name for HTTP basic authentication. Sent only with `password`.
+    - path: services[].url.basic_auth.password
+      type: string
+      required: 'no'
+      default: empty
+      description: Password for HTTP basic authentication. Sent only with `username`.
+    - path: services[].url.insecure_skip_verify
+      type: boolean
+      required: 'no'
+      default: '`false`'
+      description: Skips the TLS check of the remote server.
+
+- prefix: services[].kubernetes.
+  keys:
+    - path: services[].kubernetes.service
+      type: string
+      required: 'yes'
+      default: none
+      description: Name of the Kubernetes Service.
+    - path: services[].kubernetes.namespace
+      type: string
+      required: 'no'
+      default: '`default`'
+      description: Namespace of the Service.
+    - path: services[].kubernetes.port_name
+      type: string
+      required: 'no'
+      default: empty
+      description: Name of the port to use, among the ports of the Service.
+    - path: services[].kubernetes.kubeconfig
+      type: path
+      required: 'no'
+      default: empty
+      description: Kubeconfig to connect with. A leading `~/` is the home directory.
+    - path: services[].kubernetes.context
+      type: string
+      required: 'no'
+      default: empty
+      description: Context of the kubeconfig. Empty means its current context.

@@ -8,6 +8,7 @@ import starlightImageZoom from 'starlight-image-zoom';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import starlightTags from 'starlight-tags';
+import { loadConfigurationKeys, remarkConfigurationTables } from './src/lib/configuration-keys.mjs';
 import { loadExternalLinks, remarkExternalLinks } from './src/lib/external-links.mjs';
 import { loadGlossary, remarkGlossaryTerms } from './src/lib/glossary-terms.mjs';
 
@@ -25,6 +26,8 @@ export default defineConfig({
 	markdown: {
 		// Each plugin skips text already in a link, so project names win over glossary terms.
 		remarkPlugins: [
+			// First, so the other plugins also see the tables it builds.
+			[remarkConfigurationTables, { keys: loadConfigurationKeys('./src/data/configuration.yaml') }],
 			[remarkExternalLinks, { links: loadExternalLinks('./src/data/external-links.yaml') }],
 			[remarkGlossaryTerms, { glossary: loadGlossary('./src/content/docs/reference/glossary.md') }],
 		],
@@ -62,8 +65,9 @@ export default defineConfig({
 				starlightLlmsTxt({
 					projectName: 'Vigie',
 					// The labels and buttons of starlight-codeblocks would otherwise land inside the code, and the glossary
-					// definitions in the middle of the sentences that use the terms.
-					customSelectors: { all: ['.scb-deco', '.glossary-tooltip'] },
+					// definitions in the middle of the sentences that use the terms, and the descriptions of the configuration
+					// keys inside the YAML blocks.
+					customSelectors: { all: ['.scb-deco', '.glossary-tooltip', '.config-key-tooltip'] },
 					description:
 						'Vigie is an endpoint discovery server. It reads the endpoints of named services from DNS, a file, a URL or Kubernetes, and serves them as JSON over HTTP to the clients that poll them.',
 				}),

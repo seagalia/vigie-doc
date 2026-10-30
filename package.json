@@ -18,6 +18,7 @@
     "astro-mermaid": "^2.2.0",
     "astro-og-canvas": "^0.13.2",
     "canvaskit-wasm": "^0.42.0",
+    "mdast-util-to-hast": "^13.2.1",
     "mdast-util-to-string": "^4.0.0",
     "mermaid": "^12.2.0",
     "remark-gfm": "^4.0.1",

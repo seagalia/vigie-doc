@@ -187,6 +187,9 @@ importers:
       canvaskit-wasm:
         specifier: ^0.42.0
         version: 0.42.0
+      mdast-util-to-hast:
+        specifier: ^13.2.1
+        version: 13.2.1
       mdast-util-to-string:
         specifier: ^4.0.0
         version: 4.0.0
