@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: Build Vigie, serve two services from a file and from DNS, query them, then change an endpoint and reload.
+description: Install Vigie, serve two services from a file and from DNS, query them, then change an endpoint and reload.
 sidebar:
   order: 1
 tags: [cli, configuration, http-api]
@@ -10,7 +10,7 @@ tags: [cli, configuration, http-api]
 
 This quickstart runs Vigie on your own machine with two services. It guides you through:
 
-1. [Build the `vigie` binary](#build-the-vigie-binary).
+1. [Install the `vigie` binary](#install-the-vigie-binary).
 2. [Write a configuration](#write-a-configuration).
 3. [Start the server](#start-the-server).
 4. [Query the services](#query-the-services).
@@ -24,29 +24,32 @@ terminal. [How Vigie works](/concepts/how-vigie-works/) explains the ideas behin
 
 You need:
 
-- Go, at the version of the `go` line of the `go.mod` of Vigie.
-- `git` and `curl`.
+- Linux or macOS, with `curl`.
 - Port 8080 free on your machine.
 
-## Build the `vigie` binary
+## Install the `vigie` binary
 
-1. Clone the repository.
-
-    ```bash
-    git clone https://github.com/seagalia/vigie.git
-    cd vigie
-    ```
-
-2. Build the binary.
+1. Install the binary of the latest release with the install script.
 
     ```bash
-    CGO_ENABLED=0 go build .
+    curl -fsSL https://seagalia.io/install.sh | sh -s -- vigie
     ```
 
-    The `vigie` binary lands in the current directory. `./vigie version` prints its version.
+    It puts `vigie` in `/usr/local/bin` or `~/.local/bin`, and warns when that directory isn't in your `PATH`. [Install
+    with the script](/start/install/#install-with-the-script) describes its options.
 
-The [releases of Vigie](https://github.com/seagalia/vigie/releases) also hold built binaries, see [Install
-Vigie](/start/install/).
+2. Check the binary.
+
+    ```bash
+    vigie version
+    ```
+
+3. Make a directory for the files of this quickstart.
+
+    ```bash
+    mkdir vigie-quickstart
+    cd vigie-quickstart
+    ```
 
 ## Write a configuration
 
@@ -82,7 +85,7 @@ Vigie](/start/install/).
 3. Check the file.
 
     ```bash
-    ./vigie check-config -c config.yml
+    vigie check-config -c config.yml
     ```
 
     The command prints `config <path> is valid`, with the absolute path of the file. It also refuses the keys it doesn't
@@ -93,7 +96,7 @@ Vigie](/start/install/).
 Start the server in its own terminal:
 
 ```bash
-./vigie serve -c config.yml
+vigie serve -c config.yml
 ```
 
 It logs `Listening` with the address it listens on, and keeps running until you stop it.
@@ -193,7 +196,14 @@ A change to the configuration itself, such as a new service, needs a reload.
 
 ## Clean up
 
-Stop the server with `Ctrl+C`, then remove `config.yml` and `web.txt`.
+Stop the server with `Ctrl+C`, then remove the directory of the quickstart.
+
+```bash
+cd ..
+rm -r vigie-quickstart
+```
+
+The binary stays installed. To remove it as well, run `rm "$(command -v vigie)"`.
 
 ## Next steps
 

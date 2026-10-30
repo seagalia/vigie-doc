@@ -7,7 +7,8 @@ tags: [flock, http-api]
 ---
 
 A [Flock](https://github.com/seagalia/flock) backend takes its endpoints from one of three sources, and `eds` is the one
-that polls an endpoint discovery service such as Vigie. Each Flock agent then asks Vigie for the endpoints of the service
+that polls an endpoint discovery service such as Vigie. Each Flock agent then asks Vigie for the endpoints of the
+service
 every `refresh_rate` of the backend, and replaces the endpoints of the backend with the answer. It sends `GET
 <url>?service_name=<service_name>` with an `http` or `https` URL, and calls the [EDS
 service](/reference/http-api/#the-eds-service) of Vigie with a `grpc` or `grpcs` URL.
@@ -55,8 +56,8 @@ flock create-backend -f backend.yml
 
 ## Serve Vigie over HTTPS
 
-When the agents reach Vigie over a network you don't trust, [serve HTTPS](/guides/serve-https/) and change the URL of
-the backend:
+When the agents reach Vigie over a network you don't trust, serve HTTPS with
+[`server.tls`](/reference/configuration/#file-structure) and change the URL of the backend:
 
 ```yaml title="backend.yml" ins={3,5,7-10}
 eds:
@@ -108,8 +109,8 @@ eds:
   service_name: web
 ```
 
-The URL has no path. In the gRPC modes the path goes before the name of the procedure, for a Vigie behind a reverse
-proxy under a prefix, so a URL that keeps `/services` fails each poll with the code `Unimplemented`.
+Always give the port: without one, `grpc` goes to port 80 and `grpcs` to port 443, while Vigie listens on 8080 by
+default.
 
 With `grpcs`, `ca` and `url.user_info` work as in [Serve Vigie over HTTPS](#serve-vigie-over-https):
 

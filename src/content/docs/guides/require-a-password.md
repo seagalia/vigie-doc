@@ -10,8 +10,8 @@ By default, anyone who reaches the port of Vigie can read its services and reloa
 endpoint but the health checks (`GET /healthz` and the gRPC health service) asks for the username and password of one
 of the users you list. Probes keep working without credentials.
 
-Basic authentication sends the password in clear on each request. Turn it on with [HTTPS](/guides/serve-https/) when
-the network between the clients and Vigie isn't trusted.
+Basic authentication sends the password in clear on each request. Turn on HTTPS with
+[`server.tls`](/reference/configuration/#file-structure) when the network between the clients and Vigie isn't trusted.
 
 ## Turn it on
 
@@ -36,7 +36,7 @@ the network between the clients and Vigie isn't trusted.
           path: /etc/vigie/web-endpoints.txt
     ```
 
-    The file now holds passwords, so only the user that runs Vigie should read it.
+   The file now holds passwords, so only the user that runs Vigie should read it.
 
 2. Check the file and restart Vigie. A reload doesn't apply a change to `server`.
 
@@ -59,16 +59,3 @@ showing the [page](/reference/web-page/).
 
 A [Flock backend](/guides/feed-flock-backends/) gives them in `url.user_info` of its `eds` block. Any other client sends
 them in an `Authorization: Basic` header, as `curl -u` does.
-
-## Change a password
-
-Every user of `server.basic_auth` is accepted, so a password can change without a moment where the clients get `401`:
-
-1. Add a user with the new password next to the old one, and restart Vigie.
-2. Once every client sends the new credentials, remove the old user and restart Vigie again.
-
-| Error | Cause |
-|---|---|
-| `server basic_auth: username and password are required` | A user has an empty `username` or `password`. |
-| `server basic_auth: username <name> is given twice` | Two users have the same `username`. |
-| `401 unauthorized` from a client | The client sends no credentials, or not those of a user of `server.basic_auth`. |

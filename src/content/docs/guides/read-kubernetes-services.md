@@ -93,8 +93,7 @@ services:
 ```
 
 Without `kubeconfig`, Vigie looks for `$KUBECONFIG`, then `~/.kube/config`, then the service account of the pod it runs
-in. A leading `~/` is the home directory of the user that runs Vigie, which is a dynamic user with the systemd unit of
-the repository, so give an absolute path there.
+in.
 
 Two services can read two clusters, each with its own kubeconfig or context.
 
@@ -114,10 +113,10 @@ kubectl -n shop get endpointslices -l kubernetes.io/service-name=web
 curl -s 'http://localhost:8080/services?service_name=web'
 ```
 
-| Error in the answer | Cause |
-|---|---|
-| `get service shop/web: <err>` | The Service doesn't exist, or the cluster can't be reached or refuses Vigie. A `forbidden` error means the Role is missing. |
-| `list endpointslices of service shop/web: <err>` | Vigie can read the Service but not list its EndpointSlices, usually the second rule of the Role is missing. |
-| `port http not found in service shop/web` | The Service has no port named `port_name`. |
+| Error in the answer                              | Cause                                                                                                                       |
+|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `get service shop/web: <err>`                    | The Service doesn't exist, or the cluster can't be reached or refuses Vigie. A `forbidden` error means the Role is missing. |
+| `list endpointslices of service shop/web: <err>` | Vigie can read the Service but not list its EndpointSlices, usually the second rule of the Role is missing.                 |
+| `port http not found in service shop/web`        | The Service has no port named `port_name`.                                                                                  |
 
 [Configuration](/reference/configuration/#kubernetes) lists every key of the source.

@@ -15,7 +15,9 @@ Vigie is one static binary with no dependency. Each archive holds the `vigie` bi
 
 ## Other ways to get Vigie
 
+- **Install script**: `curl -fsSL https://seagalia.io/install.sh | sh -s -- vigie` downloads the archive of your system,
+  checks it and installs the binary, see [Install with the script](/start/install/#install-with-the-script).
 - **Build it yourself**: clone the [repository](https://github.com/seagalia/vigie) and run `CGO_ENABLED=0 go build .`, as in
-  the [quickstart](/start/quickstart/#build-the-vigie-binary).
+  [Install Vigie](/start/install/#install-from-a-release).
 - **Container image**: no image is published yet. `make docker` builds one from the repository, see
   [Run in a container](/start/install/#run-in-a-container).

@@ -43,11 +43,13 @@ The source says where the endpoints come from:
 | `url` | The body of an HTTP `GET`, one endpoint per line | The weight of the line, else `0` |
 | `kubernetes` | The ready endpoints of the EndpointSlices of a Service | Always `0` |
 
-Consul has no source of its own because it answers DNS for its services, so the `dns` source reads it. [Read Consul
-services](/guides/read-consul-services/) shows how.
-
 A service holds one source. When a service sets several, the first of `kubernetes`, `url`, `file` and `dns` wins, and
 Vigie ignores the others.
+
+:::tip[Your system has no source?]
+A tool can write its endpoints to a file that a `file` source reads. [Read a file or a remote
+list](/guides/read-a-file-or-a-remote-list/) shows how.
+:::
 
 An endpoint that gives no port takes the `default_port` of the service, `80` when the service sets none. Files, remote
 lists and TXT records share one line format, described in [Endpoint lines](/reference/configuration/#endpoint-lines).
@@ -66,8 +68,7 @@ Every service answers `GET /services?service_name=<name>` with a JSON list of ob
 ]
 ```
 
-The fields and the `service_name` parameter are a contract with the clients. The agents of Flock read this answer for
-their backends with an `eds` block, and meridian reads it too, so a change to them is a change to those clients as well.
+The fields and the `service_name` parameter are a contract with the clients.
 
 Vigie never resolves a host name it finds in a line, so the `ip` of a file or a remote list is what the line says. Write
 IP addresses there, because a client such as the Flock agent refuses an `ip` that isn't one.
@@ -84,9 +85,9 @@ Vigie keeps the answer of each source for a while instead of reading the source 
 the service. A change to the records, the file, the remote list or the pods shows within that time, without a reload.
 
 - When the answer has expired, the requests that arrive wait for one read of the source and share its result. Many
-  clients polling at once cost one lookup.
+clients polling at once cost one lookup.
 - A read that fails isn't kept, so the next request reads the source again, and a source back up after an outage is seen
-  at once.
+at once.
 
 Pick the time against the refresh rate of your clients. A cache longer than the interval at which the clients poll only
 delays the changes they see.
@@ -94,7 +95,7 @@ delays the changes they see.
 ## Reload
 
 The services of the file can change without a restart. `SIGHUP` or `POST /reload` reads the file again and swaps all the
-services at once, so a request sees either the old services or the new ones, never a mix. A reload empties the cache.
+services at once, so a request sees either the old services or the new ones, never a mix.
 
 When the new file is invalid, or one of its sources can't be built, Vigie keeps every service it had and reports the
 error, in its logs and in the answer of `POST /reload`. A reload replaces `services`, with the `cache.ttl` they take. A

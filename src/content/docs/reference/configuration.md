@@ -46,15 +46,9 @@ services:
 
 Without `server.tls`, the server speaks plain HTTP. With it, the server speaks HTTPS only.
 
-With `server.basic_auth`, a request without the username and password of one of the users gets `401`, see [Require a password](/guides/require-a-password/). Basic authentication sends the password in clear on each request, so set `server.tls` too when the network isn't trusted.
-
-| Error | Cause |
-|---|---|
-| `services is empty` | `services` is empty or missing. |
-| `server tls: cert_file and key_file are required` | `server.tls` is set with an empty `cert_file` or `key_file`. |
-| `server basic_auth: username and password are required` | A user of `server.basic_auth` has an empty `username` or `password`. |
-| `server basic_auth: username <name> is given twice` | Two users of `server.basic_auth` have the same `username`. |
-| `cache ttl is negative` | `cache.ttl` is below `0s`. |
+With `server.basic_auth`, a request without the username and password of one of the users gets `401`,
+see [Require a password](/guides/require-a-password/). Basic authentication sends the password in clear on each request,
+so set `server.tls` too when the network isn't trusted.
 
 ## `services[]`
 
@@ -68,12 +62,6 @@ on the next request. A change to the DNS records, the file, the remote list or t
 that time, without a reload. Requests arriving while the answer has expired wait for a single read of the source, so
 many clients polling together cost one read. A source that fails isn't cached, the next request reads it again. A reload
 starts with an empty cache. Durations are written like `500ms`, `5s` or `1m`.
-
-| Error | Cause |
-|---|---|
-| `service name is empty` | `name` is empty. |
-| `service dns, file, url and kubernetes are empty, you must specify one of them` | The service has no source. |
-| `service <name> cache_ttl is negative` | `cache_ttl` is below `0s`. |
 
 A missing `default_port` only logs a warning and takes `80`.
 
@@ -99,49 +87,11 @@ With `resolver` set, every lookup of the service goes to that server over TCP, t
 and each request gives up after 8 seconds. TCP keeps a long answer whole, where a UDP answer can be cut. Without
 `resolver`, vigie uses the resolver of the system.
 
-| `type` | Lookup | Endpoints |
-|---|---|---|
-| `IP` | A and AAAA records of `name` | Each address, on `default_port`. |
-| `SRV` | SRV records of `name` | Each address of each target, on the port of the record or `default_port` when it's `0`, with the weight of the record. |
-| `TXT` | TXT records of `name` | Each record starting with `eds=`, followed by an endpoint line as described in [endpoint lines](#endpoint-lines). Other records are skipped. |
-
-| Error | Cause |
-|---|---|
-| `service dns name is empty` | `name` is empty. |
-| `service dns lookup is invalid, valid are IP, TXT, SRV` | `type` is none of the three values. |
-| `service dns resolver is invalid: <err>` | `resolver` isn't a `host:port` with both parts. |
-
-#### Consul
-
-Consul answers DNS for its services, so the `dns` source reads them without a Consul-specific source. Point `resolver`
-at the DNS port of a Consul agent, or have the host forward the `.consul` domain to it and leave `resolver` empty.
-
-```yaml
-services:
-  - name: api
-    default_port: 8080
-    dns:
-      name: service.consul
-      type: SRV
-      srv_service: api
-      srv_proto: tcp
-      resolver: 127.0.0.1:8600
-```
-
-This looks up `_api._tcp.service.consul`, Consul's RFC 2782 form. Each instance gives one endpoint, with the port it
-registered and its weight `Weights.Passing`, which is `1` when the instance registered none.
-
-- To keep only the instances with a tag, put the tag in place of `tcp`: `srv_proto: primary` looks up
-  `_api._primary.service.consul`.
-- To query another datacenter, put it in the name: `name: service.dc1.consul`.
-
-Two settings of the Consul agent (`dns_config`) matter here:
-
-- `only_passing = true`. By default, Consul DNS leaves out the instances whose checks are critical but keeps those in
-  `warning`, and vigie would hand them to its clients.
-- `enable_truncate = true`, when vigie goes through the resolver of the system rather than `resolver`. Over UDP, Consul
-  cuts a long answer to a few records without telling the client, so a service with many instances would lose some of
-  them. With `resolver`, vigie asks over TCP and gets every record.
+| `type` | Lookup                       | Endpoints                                                                                                                                    |
+|--------|------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `IP`   | A and AAAA records of `name` | Each address, on `default_port`.                                                                                                             |
+| `SRV`  | SRV records of `name`        | Each address of each target, on the port of the record or `default_port` when it's `0`, with the weight of the record.                       |
+| `TXT`  | TXT records of `name`        | Each record starting with `eds=`, followed by an endpoint line as described in [endpoint lines](#endpoint-lines). Other records are skipped. |
 
 ### `file`
 
@@ -171,13 +121,8 @@ services:
 
 ::configuration-keys{prefix="services[].url."}
 
-The request times out after 8 seconds. An answer other than `200` fails the request with `bad status code: <code>,
-<body>`.
-
-| Error | Cause |
-|---|---|
-| `service url is empty` | `url` is empty. |
-| `service url is invalid: <err>` | `url` isn't a valid URL. |
+The request times out after 8 seconds. An answer other than `200` fails the request with
+`bad status code: <code>, <body>`.
 
 ### `kubernetes`
 
@@ -241,13 +186,6 @@ subjects:
     name: vigie
     namespace: vigie
 ```
-
-| Error | Cause |
-|---|---|
-| `service kubernetes service is empty` | `service` is empty. |
-| `load kubernetes client config: <err>` | At load, the kubeconfig or its context can't be loaded, or vigie runs outside a cluster without a kubeconfig. |
-| `get service <namespace>/<service>: <err>` | On a request, the Service doesn't exist, or the cluster can't be reached or refuses vigie. |
-| `port <port_name> not found in service <namespace>/<service>` | On a request, the Service has no port named `port_name`. |
 
 A Service that exists without any ready endpoint answers `200` with `[]`.
 

@@ -6,10 +6,11 @@ sidebar:
 tags: [operations, kubernetes]
 ---
 
-Vigie is one static binary, `vigie`, built without cgo. It reads one YAML file and listens on one port, `8080` by
-default. This page installs it in one of four ways:
+Vigie is one static binary, `vigie`. It reads one YAML file and listens on one port, `8080` by
+default. This page installs it in one of five ways:
 
-- [From a release](#install-from-a-release), the binary alone.
+- [With the install script](#install-with-the-script), the binary of the latest release in one command.
+- [From a release](#install-from-a-release), the same binary downloaded and checked by hand.
 - [As a systemd service](#run-as-a-systemd-service), with the unit of the repository.
 - [In a container](#run-in-a-container), with the image the repository builds.
 - [In a Kubernetes cluster](#run-in-a-kubernetes-cluster), with a Deployment and the permissions of the `kubernetes`
@@ -18,14 +19,66 @@ default. This page installs it in one of four ways:
 Whichever way you pick, check the configuration with `vigie check-config` before you start the server, because `vigie
 serve` ignores the keys it doesn't know.
 
+## Install with the script
+
+The script at `https://seagalia.io/install.sh` installs the binary of a Seagalia project from its GitHub release, so it
+takes the name of the project first. Without a version, it installs the latest stable release.
+
+```bash
+curl -fsSL https://seagalia.io/install.sh | sh -s -- vigie
+```
+
+To read the script before you run it:
+
+```bash
+curl -fsSL https://seagalia.io/install.sh | less
+```
+
+It needs a POSIX `sh`, `curl` or `wget`, `tar` (`unzip` on Windows) and `sha256sum` or `shasum`. It checks the archive
+against the `checksums.txt` of the release before it installs anything, and skips that check with a warning when it
+finds neither `sha256sum` nor `shasum`.
+
+### Pick a version
+
+A version after the name installs that release, written `v0.3.1` or `0.3.1`. The latest release is never a prerelease,
+so a prerelease installs only this way.
+
+```bash
+curl -fsSL https://seagalia.io/install.sh | sh -s -- vigie v0.3.1
+```
+
+### Pick the directory
+
+On Linux and macOS, the script puts the binary in `/usr/local/bin` when you can write to it and in `~/.local/bin`
+otherwise. On Windows it uses `~/bin`. So it never asks for a password by default. `INSTALL_DIR` picks another
+directory, and the script runs `sudo` when you can't write to it.
+
+```bash
+curl -fsSL https://seagalia.io/install.sh | INSTALL_DIR=~/bin sh -s -- vigie
+```
+
+When the directory isn't in your `PATH`, the script warns and prints the `export` line to add to your shell profile.
+
+### Systems
+
+The script runs on Linux and macOS, and on Windows in an MSYS or Cygwin shell such as Git Bash, on `amd64` and
+`arm64`. On a Mac with Apple silicon, a shell running under Rosetta still gets the native `arm64` build.
+
+`NO_COLOR=1` turns the colors of its output off.
+
+```bash
+curl -fsSL https://seagalia.io/install.sh | NO_COLOR=1 sh -s -- vigie
+```
+
 ## Install from a release
 
 Each tag `v*` of the repository publishes archives on the [releases page](https://github.com/seagalia/vigie/releases),
 for Linux and macOS on `amd64` and `arm64`, with Windows zips next to them. `checksums.txt` holds the SHA-256 of every
-archive.
+archive. The [Download](/download/) page lists the archives of the latest release with their checksums. The steps
+below do by hand what [the install script](#install-with-the-script) does.
 
-1. Download the archive of your system and its checksums. Replace `<version>` with the version without its `v`, such as
-   `0.1.0`.
+1. Download the archive of your system and its checksums. Replace `<version>` with the version without its `v`, as
+   [Download](/download/) shows it.
 
     ```bash
     VERSION=<version>
@@ -47,22 +100,28 @@ archive.
     vigie version
     ```
 
-To build from source instead, run `CGO_ENABLED=0 go build .` in a clone of the repository, as in the
-[quickstart](/start/quickstart/#build-the-vigie-binary).
+To build from source instead, run `CGO_ENABLED=0 go build .` in a clone of the repository, with Go at the version of
+the `go` line of its `go.mod`.
 
 ## Run as a systemd service
 
-The repository ships a unit in `assets/systemd/vigie.service`. It runs `/usr/local/bin/vigie serve` with
+The repository ships a unit in
+[`assets/systemd/vigie.service`](https://github.com/seagalia/vigie/blob/main/assets/systemd/vigie.service). It runs `/usr/local/bin/vigie serve` with
 `/etc/vigie/config.yml`, under a dynamic user, and maps `systemctl reload` to `SIGHUP`.
 
-1. Install the binary in `/usr/local/bin/vigie`, as in [Install from a release](#install-from-a-release).
+1. Install the binary in `/usr/local/bin/vigie` with [the install script](#install-with-the-script).
 
-2. Write the configuration in `/etc/vigie/config.yml`, starting from `assets/config.yml` of the repository, then check
+    ```bash
+    curl -fsSL https://seagalia.io/install.sh | INSTALL_DIR=/usr/local/bin sh -s -- vigie
+    ```
+
+2. Write the configuration in `/etc/vigie/config.yml`, starting from
+   [`assets/config.yml`](https://github.com/seagalia/vigie/blob/main/assets/config.yml) of the repository, then check
    it.
 
     ```bash
     sudo mkdir -p /etc/vigie
-    sudo cp assets/config.yml /etc/vigie/config.yml
+    sudo curl -fsSL -o /etc/vigie/config.yml https://raw.githubusercontent.com/seagalia/vigie/main/assets/config.yml
     vigie check-config -c /etc/vigie/config.yml
     ```
 
@@ -72,7 +131,8 @@ The repository ships a unit in `assets/systemd/vigie.service`. It runs `/usr/loc
 3. Install and start the unit.
 
     ```bash
-    sudo cp assets/systemd/vigie.service /etc/systemd/system/
+    sudo curl -fsSL -o /etc/systemd/system/vigie.service \
+      https://raw.githubusercontent.com/seagalia/vigie/main/assets/systemd/vigie.service
     sudo systemctl daemon-reload
     sudo systemctl enable --now vigie
     ```
@@ -244,5 +304,6 @@ Services](/guides/read-kubernetes-services/) covers the `kubernetes` source in d
 ## Next steps
 
 - [Configuration](/reference/configuration/) lists every key of the file.
-- [Serve HTTPS](/guides/serve-https/) when clients reach Vigie over a network you don't trust.
+- [`server.tls`](/reference/configuration/#file-structure) serves HTTPS when clients reach Vigie over a network you don't
+  trust.
 - [Troubleshooting](/guides/troubleshooting/) lists the errors you can meet and what they mean.

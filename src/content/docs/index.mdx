@@ -1,5 +1,5 @@
 ---
-title: Vigie
+title: Endpoint discovery server
 description: Vigie is an endpoint discovery server. It reads the endpoints of named services from DNS, a file, a URL or Kubernetes, and serves them as JSON over HTTP.
 template: splash
 hero:
@@ -16,10 +16,6 @@ hero:
     - text: Install Vigie
       link: /start/install/
       variant: secondary
-    - text: View on GitHub
-      link: https://github.com/seagalia/vigie
-      icon: github
-      variant: minimal
 ---
 
 import { Card, LinkCard, CardGrid } from '@astrojs/starlight/components';
@@ -42,6 +38,16 @@ by name with `GET /services?service_name=<name>` and gets a JSON list of endpoin
 its
 weight, whatever the source behind it.
 
+```console
+$ curl -s 'http://127.0.0.1:8080/services?service_name=web'
+[
+  { "ip": "10.0.0.5", "port": 8080, "load_balancing_weight": 0 },
+  { "ip": "10.0.0.7", "port": 8080, "load_balancing_weight": 3 }
+]
+```
+
+The same endpoints come over gRPC too, see [the EDS service](/reference/http-api/#the-eds-service).
+
 <CardGrid>
 	<Card title="Four sources" icon="list-format">
 		DNS records (A and AAAA, SRV, or TXT), a local file, a list served over HTTP, or the ready endpoints of a Kubernetes
@@ -50,10 +56,6 @@ weight, whatever the source behind it.
 	<Card title="One small answer" icon="document">
 		Every service answers with the same JSON list of `ip`, `port` and `load_balancing_weight`, which any HTTP client can
 		poll.
-	</Card>
-	<Card title="Cheap to poll" icon="rocket">
-		Vigie caches each answer for a few seconds and reads a source once for all the clients asking at the same time, so
-		many pollers cost one lookup.
 	</Card>
 	<Card title="Reload without a restart" icon="random">
 		`SIGHUP` or `POST /reload` reads the file again. An invalid file is refused, and the previous services stay in
@@ -70,9 +72,15 @@ loads, with their weight.
 
 ## Who uses it
 
-The agents of [Flock](https://github.com/seagalia/flock) poll Vigie for the endpoints of their backends with an `eds`
-block, and meridian reads the same answer. Any other client that can send an HTTP request and parse JSON can do the
-same.
+Vigie is built as the endpoint source of [Flock](https://github.com/seagalia/flock) and meridian. The Flock agents poll
+it for the endpoints of their backends with the [`eds` block of a backend](/guides/feed-flock-backends/), and meridian
+reads the same answer. Any other client that can send an HTTP request and parse JSON can do the same.
+
+## Status
+
+Vigie is released under the [MIT license](https://github.com/seagalia/vigie/blob/main/LICENSE.txt) and hasn't reached
+1.0 yet, see [Download](/download/) for the latest release. The answer of `GET /services` is a contract with its clients
+and stays as it is, while the configuration file can still change before 1.0.
 
 ## Next steps
 

@@ -10,11 +10,11 @@ The `dns` source turns DNS records into endpoints. It suits services already pub
 registry such as Consul. This guide covers its three lookups and the `resolver` key. Consul has its own guide, [Read
 Consul services](/guides/read-consul-services/).
 
-| `type` | Use it when |
-|---|---|
-| `IP` (default) | Every address of a name listens on the same port. |
-| `SRV` | Each endpoint has its own port or weight, published as SRV records. |
-| `TXT` | You want to write the endpoints in your zone without SRV, one `eds=` record each. |
+| `type`         | Use it when                                                                       |
+|----------------|-----------------------------------------------------------------------------------|
+| `IP` (default) | Every address of a name listens on the same port.                                 |
+| `SRV`          | Each endpoint has its own port or weight, published as SRV records.               |
+| `TXT`          | You want to write the endpoints in your zone without SRV, one `eds=` record each. |
 
 ## Serve the addresses of a name
 

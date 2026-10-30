@@ -10,6 +10,9 @@ The `file` and `url` sources read a plain text list of endpoints, one per line. 
 written by hand or by a configuration management tool, and `url` for a list that another system serves, such as an
 inventory or a CMDB export.
 
+The `file` source is also the way in for any system that Vigie has no source for. A cron job or a sidecar asks that
+system for its endpoints and writes them to the file, and Vigie serves whatever the file holds.
+
 ## Write the list
 
 Both sources read the same [endpoint lines](/reference/configuration/#endpoint-lines):
