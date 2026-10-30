@@ -6,8 +6,6 @@ sidebar:
 tags: [cli, configuration, http-api]
 ---
 
-## Overview
-
 This quickstart runs Vigie on your own machine with two services. It guides you through:
 
 1. [Install the `vigie` binary](#install-the-vigie-binary).
@@ -35,8 +33,8 @@ You need:
     curl -fsSL https://seagalia.io/install.sh | sh -s -- vigie
     ```
 
-    It puts `vigie` in `/usr/local/bin` or `~/.local/bin`, and warns when that directory isn't in your `PATH`. [Install
-    with the script](/start/install/#install-with-the-script) describes its options.
+   It puts `vigie` in `/usr/local/bin` or `~/.local/bin`, and warns when that directory isn't in your `PATH`. [Install
+   with the script](/start/install/#install-with-the-script) describes its options.
 
 2. Check the binary.
 
@@ -62,8 +60,8 @@ You need:
     10.0.0.7:8080#3
     ```
 
-    A line without a port takes the default port of the service, and `#3` gives the endpoint a weight of 3. [Endpoint
-    lines](/reference/configuration/#endpoint-lines) describes the format.
+   A line without a port takes the default port of the service, and `#3` gives the endpoint a weight of 3. [Endpoint
+   lines](/reference/configuration/#endpoint-lines) describes the format.
 
 2. Write the configuration, with the service `web` read from that file and the service `local` read from DNS. A relative
    `path` starts from the directory you run `vigie` in.
@@ -88,8 +86,8 @@ You need:
     vigie check-config -c config.yml
     ```
 
-    The command prints `config <path> is valid`, with the absolute path of the file. It also refuses the keys it doesn't
-    know, where `serve` ignores them.
+   The command prints `config <path> is valid`, with the absolute path of the file. It also refuses the keys it doesn't
+   know, where `serve` ignores them.
 
 ## Start the server
 
@@ -177,7 +175,7 @@ A change to the configuration itself, such as a new service, needs a reload.
           path: web.txt
     ```
 
-    The service named `default` answers the requests that give no `service_name`.
+   The service named `default` answers the requests that give no `service_name`.
 
 2. Reload the services.
 
@@ -185,8 +183,8 @@ A change to the configuration itself, such as a new service, needs a reload.
     curl -s -X POST http://127.0.0.1:8080/reload
     ```
 
-    Vigie answers `services reloaded`. When the new file is invalid, it answers `422` with the error and keeps the
-    services it had.
+   Vigie answers `services reloaded`. When the new file is invalid, it answers `422` with the error and keeps the
+   services it had.
 
 3. Ask for the endpoints without a service name.
 
