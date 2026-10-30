@@ -4,7 +4,7 @@ consul: https://developer.hashicorp.com/consul
 distroless: https://github.com/GoogleContainerTools/distroless
 dnsmasq: https://thekelleys.org.uk/dnsmasq/doc.html
 docker: https://www.docker.com
-flock: https://flock.seagalia.dev
+flock: https://flock.seagalia.io
 ginkgo: https://onsi.github.io/ginkgo/
 golangci-lint: https://golangci-lint.run
 gomega: https://onsi.github.io/gomega/

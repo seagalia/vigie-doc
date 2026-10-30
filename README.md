@@ -27,6 +27,12 @@ Then use the scripts of `package.json`:
 To keep the development server running in the background, start it with `astro dev --background`, and manage it with
 `astro dev status`, `astro dev logs` and `astro dev stop`.
 
+## Deploy
+
+`.github/workflows/deploy.yml` builds the site on each pull request, and on each push to `main` publishes `dist/` to
+GitHub Pages. In the settings of the repository, Pages must take its source from GitHub Actions, and the custom domain
+`vigie.seagalia.io` set there must match `site` in `astro.config.mjs`.
+
 ## Where the pages live
 
 Every page is a Markdown or MDX file under `src/content/docs/`. `index.mdx` is the landing page, and each folder is a

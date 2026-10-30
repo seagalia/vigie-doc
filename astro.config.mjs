@@ -21,7 +21,7 @@ const groups = [
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://vigie.seagalia.dev',
+	site: 'https://vigie.seagalia.io',
 	markdown: {
 		// Each plugin skips text already in a link, so project names win over glossary terms.
 		remarkPlugins: [

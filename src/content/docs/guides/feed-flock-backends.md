@@ -86,5 +86,5 @@ flock status-endpoints
 The agents see the endpoints Vigie serves, as their health check finds them. An endpoint whose `ip` isn't an IP address
 is refused by the agent, so write addresses in the files, lists and TXT records Vigie reads.
 
-The `eds` block is described in the [Flock documentation](https://flock.seagalia.dev/concepts/resources/backend/), and
+The `eds` block is described in the [Flock documentation](https://flock.seagalia.io/concepts/resources/backend/), and
 `flock explain backend eds` prints its fields.
