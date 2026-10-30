@@ -52,6 +52,16 @@ a change to `disable_reload_by_request`.
 
 A failed read isn't cached, so the next request tries the source again.
 
+## A gRPC call fails
+
+| Code and message | Cause | Fix |
+|---|---|---|
+| `Unimplemented`, `HTTP status 404 Not Found` | The base URL has a path that Vigie doesn't serve, such as a Flock `grpc` URL that kept `/services`, or the server is a Vigie without the EDS service. | Remove the path, see [Call Vigie over gRPC](/guides/feed-flock-backends/#call-vigie-over-grpc), or upgrade Vigie. |
+| `Unauthenticated` | `server.basic_auth` is set and the call has no username and password, or wrong ones. | Give the username and password of one of its users, such as `url.user_info` of a Flock backend. |
+| `NotFound`, `service <name> not found` | No service has this name, like the `404` of `/services`. | Check the name, or reload the file that adds the service. |
+| `Unavailable`, `resolve service <name> failed: <err>` | The source failed, like the `500` of `/services`. | Read `<err>`, its causes are those of the `500` above. |
+| `Unavailable` or `Unknown`, with a connection or protocol error | Vigie isn't reachable, or the scheme doesn't match `server.tls` (`grpc` against a Vigie with TLS, `grpcs` against one without). | Use `grpcs` with `server.tls` and `grpc` without. |
+
 ## The endpoints are old
 
 Vigie keeps each answer for the `cache_ttl` of the service, 5 seconds by default, so a change shows up to that time

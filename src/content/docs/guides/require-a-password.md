@@ -7,8 +7,8 @@ tags: [security, configuration]
 ---
 
 By default, anyone who reaches the port of Vigie can read its services and reload them. With `server.basic_auth`, every
-endpoint but `GET /healthz` asks for the username and password of one of the users you list. Probes keep working
-without credentials.
+endpoint but the health checks (`GET /healthz` and the gRPC health service) asks for the username and password of one
+of the users you list. Probes keep working without credentials.
 
 Basic authentication sends the password in clear on each request. Turn it on with [HTTPS](/guides/serve-https/) when
 the network between the clients and Vigie isn't trusted.

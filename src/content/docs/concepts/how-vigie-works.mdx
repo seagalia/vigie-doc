@@ -14,7 +14,7 @@ name, and Vigie answers with the endpoints the source gives, in one JSON format 
 flowchart LR
   client["Clients<br/>Flock agents, meridian, your tools"]
   subgraph vigie["Vigie"]
-    handler["GET /services"]
+    handler["GET /services<br/>or gRPC GetEndpoints"]
     cache["Cache of the service<br/>5 s by default"]
     handler --> cache
   end
@@ -72,7 +72,10 @@ their backends with an `eds` block, and meridian reads it too, so a change to th
 Vigie never resolves a host name it finds in a line, so the `ip` of a file or a remote list is what the line says. Write
 IP addresses there, because a client such as the Flock agent refuses an `ip` that isn't one.
 
-[HTTP API](/reference/http-api/) lists every endpoint of the server and its errors.
+The same endpoints come from the gRPC service `vigie.eds.v1.EndpointDiscoveryService` too, on the same port, for clients
+that prefer typed messages to JSON. Both read the same services through the same cache.
+
+[HTTP API](/reference/http-api/) lists every endpoint of the server and its errors, the gRPC service included.
 
 ## The cache
 

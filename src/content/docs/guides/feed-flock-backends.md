@@ -7,9 +7,10 @@ tags: [flock, http-api]
 ---
 
 A [Flock](https://github.com/seagalia/flock) backend takes its endpoints from one of three sources, and `eds` is the one
-that polls an endpoint discovery service such as Vigie. Each Flock agent then sends `GET
-<url>?service_name=<service_name>` to Vigie every `refresh_rate` of the backend, and replaces the endpoints of the
-backend with the answer.
+that polls an endpoint discovery service such as Vigie. Each Flock agent then asks Vigie for the endpoints of the service
+every `refresh_rate` of the backend, and replaces the endpoints of the backend with the answer. It sends `GET
+<url>?service_name=<service_name>` with an `http` or `https` URL, and calls the [EDS
+service](/reference/http-api/#the-eds-service) of Vigie with a `grpc` or `grpcs` URL.
 
 ## Before you start
 
@@ -38,7 +39,8 @@ health_check:
 ```
 
 - `url` gives the address of Vigie with the path `/services`. With an `http` or `https` scheme, the agent reads the JSON
-  answer of Vigie. Another scheme makes it call a gRPC discovery service instead.
+  answer of Vigie. [Call Vigie over gRPC](#call-vigie-over-grpc) shows the other two schemes, and Flock refuses any
+  other.
 - `service_name` is the name of the service in the configuration of Vigie. Leave it empty to get the service named
   `default`.
 - `refresh_rate` is how often each agent polls Vigie. Keep it at or above the `cache_ttl` of the service in Vigie, 5
@@ -91,6 +93,41 @@ eds:
 
 The agents send them as basic authentication on each poll. Serve Vigie over HTTPS in that case, because basic
 authentication sends the password in clear.
+
+## Call Vigie over gRPC
+
+With the scheme `grpc`, the agents call the EDS service of Vigie in clear text (h2c), and with `grpcs` over TLS. Vigie
+answers both on its usual port, so only the URL of the backend changes:
+
+```yaml title="backend.yml" ins={3,6}
+eds:
+  url:
+    scheme: grpc
+    host: vigie.example.com
+    port: 8080
+  service_name: web
+```
+
+The URL has no path. In the gRPC modes the path goes before the name of the procedure, for a Vigie behind a reverse
+proxy under a prefix, so a URL that keeps `/services` fails each poll with the code `Unimplemented`.
+
+With `grpcs`, `ca` and `url.user_info` work as in [Serve Vigie over HTTPS](#serve-vigie-over-https):
+
+```yaml title="backend.yml" ins={3,5}
+eds:
+  url:
+    scheme: grpcs
+    host: vigie.example.com
+    port: 8443
+    user_info:
+      user: flock
+      password: change-me
+  ca: |
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----
+  service_name: web
+```
 
 ## Check the result
 
