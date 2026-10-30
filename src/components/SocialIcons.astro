@@ -1,0 +1,35 @@
+---
+// Starlight's header has no slot for top-level links, and SocialIcons is the component both the header and the mobile
+// menu render, so the links sit here, before the GitHub icon.
+import Default from '@astrojs/starlight/components/SocialIcons.astro';
+
+const path = Astro.url.pathname;
+const isHome = path === '/';
+const isDownload = path.startsWith('/download/');
+const isDocs = !isHome && !isDownload;
+---
+
+<nav class="top-links sl-flex" aria-label="Main">
+	<a href="/start/quickstart/" aria-current={isDocs ? 'page' : undefined}>Docs</a>
+	<a href="/download/" aria-current={isDownload ? 'page' : undefined}>Download</a>
+</nav>
+<Default />
+
+<style>
+	.top-links {
+		gap: 1.25rem;
+		margin-inline-end: 0.5rem;
+		align-items: center;
+	}
+
+	.top-links a {
+		color: var(--sl-color-gray-2);
+		font-weight: 600;
+		text-decoration: none;
+	}
+
+	.top-links a:hover,
+	.top-links a[aria-current='page'] {
+		color: var(--sl-color-text-accent);
+	}
+</style>

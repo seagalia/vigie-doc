@@ -46,6 +46,7 @@ export default defineConfig({
 			components: {
 				PageFrame: './src/components/PageFrame.astro',
 				PageTitle: './src/components/PageTitle.astro',
+				SocialIcons: './src/components/SocialIcons.astro',
 			},
 			sidebar: groups
 				.map((group) => ({ label: group.label, items: [{ autogenerate: { directory: group.directory } }] }))
@@ -60,8 +61,9 @@ export default defineConfig({
 				starlightHeadingBadges(),
 				starlightLlmsTxt({
 					projectName: 'Vigie',
-					// The labels and buttons of starlight-codeblocks would otherwise land inside the code.
-					customSelectors: { all: ['.scb-deco'] },
+					// The labels and buttons of starlight-codeblocks would otherwise land inside the code, and the glossary
+					// definitions in the middle of the sentences that use the terms.
+					customSelectors: { all: ['.scb-deco', '.glossary-tooltip'] },
 					description:
 						'Vigie is an endpoint discovery server. It reads the endpoints of named services from DNS, a file, a URL or Kubernetes, and serves them as JSON over HTTP to the clients that poll them.',
 				}),

@@ -1,0 +1,161 @@
+---
+// Lists the archives of the latest release of a project, read from the GitHub API when the site is built. The deploy
+// workflow rebuilds the site every day, so a new release shows within a day without a commit here. A project without
+// any public release gets a line saying so, and an API that can't be reached, such as offline, gets a link to the
+// releases page instead of failing the build.
+
+interface Props {
+	// owner/name of the GitHub repository, such as seagalia/vigie
+	repository: string;
+	// name of the binary, which starts the name of each archive
+	binary: string;
+}
+
+interface Asset {
+	name: string;
+	size: number;
+	browser_download_url: string;
+}
+
+interface Release {
+	tag_name: string;
+	published_at: string;
+	html_url: string;
+	assets: Asset[];
+}
+
+const { repository, binary } = Astro.props;
+const releasesPage = `https://github.com/${repository}/releases`;
+
+const systemNames: Record<string, string> = { linux: 'Linux', darwin: 'macOS', windows: 'Windows' };
+const systemOrder = Object.keys(systemNames);
+
+// 'none' when GitHub answers 404, which it does for a repository without a release and for a private repository alike.
+async function fetchLatestRelease(): Promise<Release | 'none' | 'unreachable'> {
+	// The token of the workflow lifts the limit of 60 requests an hour that anonymous calls share per IP address.
+	const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
+	if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+	try {
+		const response = await fetch(`https://api.github.com/repos/${repository}/releases/latest`, { headers });
+		if (response.status === 404) return 'none';
+		if (!response.ok) throw new Error(`GitHub answered ${response.status}`);
+		return await response.json();
+	} catch (error) {
+		console.warn(`[downloads] latest release of ${repository} not read, the page links to ${releasesPage}: ${error}`);
+		return 'unreachable';
+	}
+}
+
+// checksums.txt holds one `<sha256>  <file name>` line per archive.
+async function fetchChecksums(release: Release): Promise<Map<string, string>> {
+	const checksums = new Map<string, string>();
+	const asset = release.assets.find((candidate) => candidate.name === 'checksums.txt');
+	if (!asset) return checksums;
+	try {
+		const response = await fetch(asset.browser_download_url);
+		if (!response.ok) return checksums;
+		for (const line of (await response.text()).split('\n')) {
+			const [sha256, name] = line.trim().split(/\s+/);
+			if (sha256 && name) checksums.set(name, sha256);
+		}
+	} catch {
+		// The table still lists the archives, checksums.txt stays linked below it.
+	}
+	return checksums;
+}
+
+// goreleaser names the archives <binary>_<version>_<os>_<arch>.<tar.gz|zip>.
+const archivePattern = new RegExp(`^${binary}_[^_]+_([a-z]+)_([a-z0-9]+)\\.(tar\\.gz|zip)$`);
+
+function describe(asset: Asset) {
+	const match = asset.name.match(archivePattern);
+	if (!match) return undefined;
+	const [, system, architecture] = match;
+	return { ...asset, system, architecture };
+}
+
+function formatSize(bytes: number) {
+	return `${(bytes / 1024 / 1024).toFixed(1)} MiB`;
+}
+
+const result = await fetchLatestRelease();
+const release = typeof result === 'string' ? undefined : result;
+const checksums = release ? await fetchChecksums(release) : new Map<string, string>();
+const archives = (release?.assets ?? [])
+	.map(describe)
+	.filter((archive) => archive !== undefined)
+	.sort((a, b) => {
+		const bySystem = systemOrder.indexOf(a.system) - systemOrder.indexOf(b.system);
+		return bySystem || a.architecture.localeCompare(b.architecture);
+	});
+const publishedOn = release ? new Date(release.published_at).toISOString().slice(0, 10) : '';
+const checksumsAsset = release?.assets.find((asset) => asset.name === 'checksums.txt');
+---
+
+{
+	release && (
+		<>
+			<p class="release-line">
+				<a href={release.html_url}>
+					<strong>{release.tag_name}</strong>
+				</a>{' '}
+				· {publishedOn}
+			</p>
+			<table class="downloads">
+				<thead>
+					<tr>
+						<th>File</th>
+						<th>OS</th>
+						<th>Arch</th>
+						<th>Size</th>
+						<th>SHA-256</th>
+					</tr>
+				</thead>
+				<tbody>
+					{archives.map((archive) => (
+						<tr>
+							<td>
+								<a href={archive.browser_download_url}>{archive.name}</a>
+							</td>
+							<td>{systemNames[archive.system] ?? archive.system}</td>
+							<td>{archive.architecture}</td>
+							<td class="size">{formatSize(archive.size)}</td>
+							<td>
+								<code class="checksum">{checksums.get(archive.name) ?? 'see checksums.txt'}</code>
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+			{checksumsAsset && (
+				<p>
+					All checksums are in <a href={checksumsAsset.browser_download_url}>checksums.txt</a>. Older versions are on the{' '}
+					<a href={releasesPage}>releases page</a>.
+				</p>
+			)}
+		</>
+	)
+}
+{result === 'none' && <p>No release is published yet. Build the binary from source, as described below.</p>}
+{
+	result === 'unreachable' && (
+		<p>
+			The archives of every version are on the <a href={releasesPage}>releases page</a>.
+		</p>
+	)
+}
+
+<style>
+	.release-line {
+		font-size: var(--sl-text-lg);
+	}
+
+	.downloads .size {
+		white-space: nowrap;
+	}
+
+	.downloads .checksum {
+		font-size: var(--sl-text-xs);
+		word-break: break-all;
+	}
+</style>

@@ -1,0 +1,21 @@
+---
+title: Download
+description: The archives of the latest Vigie release for each system, with their checksums, and the other ways to get Vigie.
+template: splash
+tableOfContents: false
+---
+
+import ReleaseDownloads from '../../components/ReleaseDownloads.astro';
+
+Vigie is one static binary with no dependency. Each archive holds the `vigie` binary and the README of the project. [Install Vigie](/start/install/) shows how to check an archive and run the binary as a service.
+
+## Latest release
+
+<ReleaseDownloads repository="seagalia/vigie" binary="vigie" />
+
+## Other ways to get Vigie
+
+- **Build it yourself**: clone the [repository](https://github.com/seagalia/vigie) and run `CGO_ENABLED=0 go build .`, as in
+  the [quickstart](/start/quickstart/#build-the-vigie-binary).
+- **Container image**: no image is published yet. `make docker` builds one from the repository, see
+  [Run in a container](/start/install/#run-in-a-container).

@@ -1,8 +1,7 @@
 # Vigie documentation
 
 The documentation site of [Vigie](https://github.com/seagalia/vigie), an endpoint discovery server. It's a
-[Starlight](https://starlight.astro.build) site, built with Astro, with the look of the
-[Flock documentation](https://github.com/seagalia/flock-doc).
+[Starlight](https://starlight.astro.build) site, built with Astro.
 
 The site serves operators who run Vigie, authors of clients that poll its `/services` answer, and contributors to the
 code.
@@ -17,12 +16,12 @@ pnpm install
 
 Then use the scripts of `package.json`:
 
-| Command | What it does |
-|---|---|
-| `pnpm dev` | Serves the site on `http://localhost:4321` and reloads it on each change |
-| `pnpm build` | Builds the site into `dist/`, and fails on a broken internal link |
-| `pnpm preview` | Serves the built site from `dist/` |
-| `pnpm astro …` | Runs any other Astro command |
+| Command        | What it does                                                             |
+|----------------|--------------------------------------------------------------------------|
+| `pnpm dev`     | Serves the site on `http://localhost:4321` and reloads it on each change |
+| `pnpm build`   | Builds the site into `dist/`, and fails on a broken internal link        |
+| `pnpm preview` | Serves the built site from `dist/`                                       |
+| `pnpm astro …` | Runs any other Astro command                                             |
 
 To keep the development server running in the background, start it with `astro dev --background`, and manage it with
 `astro dev status`, `astro dev logs` and `astro dev stop`.
@@ -38,13 +37,13 @@ GitHub Pages. In the settings of the repository, Pages must take its source from
 Every page is a Markdown or MDX file under `src/content/docs/`. `index.mdx` is the landing page, and each folder is a
 group of the sidebar:
 
-| Folder | Sidebar group | Holds |
-|---|---|---|
-| `start/` | Start | The quickstart and the installation guide |
-| `concepts/` | Concepts | How Vigie works |
-| `guides/` | Guides | Tasks, one per page, and troubleshooting |
-| `reference/` | Reference | The command line, the configuration, the HTTP API, the web page and the glossary |
-| `contribute/` | Contribute | The development loop |
+| Folder        | Sidebar group | Holds                                                                            |
+|---------------|---------------|----------------------------------------------------------------------------------|
+| `start/`      | Start         | The quickstart and the installation guide                                        |
+| `concepts/`   | Concepts      | How Vigie works                                                                  |
+| `guides/`     | Guides        | Tasks, one per page, and troubleshooting                                         |
+| `reference/`  | Reference     | The command line, the configuration, the HTTP API, the web page and the glossary |
+| `contribute/` | Contribute    | The development loop                                                             |
 
 `astro.config.mjs` builds each group from its folder and orders its pages by their `sidebar.order` front matter.
 

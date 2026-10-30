@@ -1,4 +1,4 @@
-# Builds the site on every pull request, and publishes it to GitHub Pages from main.
+# Builds the site on every pull request, and publishes it to GitHub Pages from main, also once a day for the download page.
 name: deploy
 
 on:
@@ -6,6 +6,9 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  # the download page lists the latest vigie release, read when the site is built
+  schedule:
+    - cron: '17 4 * * *'
 
 permissions:
   contents: read
@@ -29,6 +32,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # also fails on a broken internal link, through starlight-links-validator
       - run: pnpm build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/upload-pages-artifact@v5
         if: github.ref == 'refs/heads/main'
         with:
