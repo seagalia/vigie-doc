@@ -42,21 +42,33 @@ export function loadConfigurationKeys(path) {
 
 /**
  * Remark plugin. Replaces each `::configuration-keys{prefix="services[].dns."}` line with the table of the group of
- * that prefix, each key written without the prefix.
+ * that prefix, each key written without the prefix, its type, whether it's required and its default above its
+ * description.
  */
 export function remarkConfigurationTables({ keys }) {
 	const cell = (children) => ({ type: 'tableCell', children: structuredClone(children) });
 	const row = (cells) => ({ type: 'tableRow', children: cells.map(cell) });
+	const text = (value) => ({ type: 'text', value });
+
+	// The content pane is too narrow for one column per field, so the facts of a key go on a small line above its
+	// description.
+	function factsLine(key) {
+		const facts = [
+			text('Type: '), ...key.type, text(' · '),
+			text('Required: '), ...key.required, text(' · '),
+			text('Default: '), ...key.default,
+		];
+		return { type: 'configFacts', data: { hName: 'span', hProperties: { className: ['config-facts'] } }, children: facts };
+	}
 
 	function table(group) {
-		const titles = ['Key', 'Type', 'Required', 'Default', 'Description'];
-		const header = row(titles.map((title) => [{ type: 'text', value: title }]));
+		const header = row([[text('Key')], [text('Description')]]);
 		const rows = group.keys.map((key) => {
 			const shortPath = { type: 'inlineCode', value: key.path.slice(group.prefix.length) };
-			return row([[shortPath], key.type, key.required, key.default, key.description]);
+			return row([[shortPath], [factsLine(key), ...key.description]]);
 		});
 		// remark-rehype writes as many cells per row as `align` has entries.
-		return { type: 'table', align: titles.map(() => null), children: [header, ...rows] };
+		return { type: 'table', align: [null, null], children: [header, ...rows] };
 	}
 
 	function replaceDirectives(parent, file) {

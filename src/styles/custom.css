@@ -221,3 +221,12 @@
 .config-key-tooltip p + p {
 	margin-top: 0.25rem;
 }
+
+/* The type, required and default of a key, above its description in the configuration tables
+   (src/lib/configuration-keys.mjs). */
+.config-facts {
+	display: block;
+	margin-bottom: 0.25rem;
+	color: var(--sl-color-gray-3);
+	font-size: var(--sl-text-sm);
+}
